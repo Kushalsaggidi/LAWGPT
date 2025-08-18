@@ -34,7 +34,7 @@ RETRY_BACKOFF_BASE     = 1.6
 RETRY_BACKOFF_MAX      = 8.0
 
 # Gemini 2.5 Flash Lite endpoint
-GEMINI_API_KEY ="AIzaSyCz41qZibYl1rca9Ye7_pkKaaBlQnms6ME"
+GEMINI_API_KEY ="AIzaSyBFEIHo4GKXri8a3rNAaQKq0EwRSrwjwYs"
 GEMINI_MODEL   = "gemini-2.5-flash-lite"
 
 GEMINI_BASE    = "https://generativelanguage.googleapis.com/v1beta"
