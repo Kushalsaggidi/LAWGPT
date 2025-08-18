@@ -34,7 +34,7 @@ RETRY_BACKOFF_BASE     = 1.6
 RETRY_BACKOFF_MAX      = 8.0
 
 # Gemini 2.5 Flash Lite endpoint
-GEMINI_API_KEY ="AIzaSyBFEIHo4GKXri8a3rNAaQKq0EwRSrwjwYs"
+GEMINI_API_KEY ="AIzaSyCz41qZibYl1rca9Ye7_pkKaaBlQnms6ME"
 GEMINI_MODEL   = "gemini-2.5-flash-lite"
 
 GEMINI_BASE    = "https://generativelanguage.googleapis.com/v1beta"
@@ -443,39 +443,58 @@ def case_items_to_payloads(batch: List[CaseItem]) -> List[Dict[str, Any]]:
     return payloads
 
 async def process_batch(session: aiohttp.ClientSession, batch: List[CaseItem], queue: asyncio.Queue):
-    # Build prompt for this batch
     payloads = case_items_to_payloads(batch)
     prompt = build_batch_prompt(payloads)
 
-    # Retry loop
     delay = 1.0
+    batch_ids = [ci.case_id for ci in batch]
+    print(f"[BATCH] Starting batch with {len(batch)} cases → {batch_ids}")
+
     for attempt in range(RETRY_CYCLES + 1):
-        # ⬇️ FIX 1: pass batch to call_gemini_json_array
         results, err = await call_gemini_json_array(session, prompt, batch)
 
         if results is not None:
-            # Success: fan out results by case_id
+            print(f"[BATCH] ✅ Batch success on attempt {attempt+1} → {batch_ids}")
             by_id = {r.get("case_id"): r for r in results if isinstance(r, dict)}
             for ci in batch:
                 res = by_id.get(ci.case_id)
-
-                # ⬇️ FIX 2: check for new schema instead of "answer"
                 if res and ("facts" in res or "judgment" in res):
+                    print(f"[CASE] ✅ Success → {ci.case_id}")
                     await queue.put({"kind": "success", "case_id": ci.case_id, "data": res})
                 else:
+                    print(f"[CASE] ❌ Missing result → {ci.case_id}")
                     await queue.put({"kind": "failure", "case_id": ci.case_id, "reason": "missing_case_result"})
             return
 
-        # failure
+        # transient error → retry full batch
         if attempt < RETRY_CYCLES and (err or "").lower() in {"timeout", "http 429", "network_error"}:
+            print(f"[BATCH] ⚠️ Attempt {attempt+1} failed ({err}). Retrying batch after {delay:.1f}s...")
             await asyncio.sleep(min(delay, RETRY_BACKOFF_MAX))
             delay *= RETRY_BACKOFF_BASE
             continue
 
-        # final failure -> mark each as failed with shared reason
+        # 🚨 Final failure → fallback to per-case processing
+        print(f"[BATCH] ❌ Final failure after {attempt+1} attempts ({err}). Retrying cases individually...")
+
         for ci in batch:
-            await queue.put({"kind": "failure", "case_id": ci.case_id, "reason": err or "unknown_error"})
+            print(f"[FALLBACK] Retrying case individually → {ci.case_id}")
+            single_payload = case_items_to_payloads([ci])
+            single_prompt = build_batch_prompt(single_payload)
+            single_results, single_err = await call_gemini_json_array(session, single_prompt, [ci])
+
+            if single_results:
+                res = single_results[0]
+                if res and ("facts" in res or "judgment" in res):
+                    print(f"[CASE] ✅ Success (fallback) → {ci.case_id}")
+                    await queue.put({"kind": "success", "case_id": ci.case_id, "data": res})
+                else:
+                    print(f"[CASE] ❌ Missing result (fallback) → {ci.case_id}")
+                    await queue.put({"kind": "failure", "case_id": ci.case_id, "reason": "missing_case_result"})
+            else:
+                print(f"[CASE] ❌ Failure (fallback) → {ci.case_id} | Reason: {single_err or err}")
+                await queue.put({"kind": "failure", "case_id": ci.case_id, "reason": single_err or err or "unknown_error"})
         return
+
 
 async def result_writer(queue: asyncio.Queue):
     civil_cases   = _safe_load_json(CIVIL_OUTPUT, [])
