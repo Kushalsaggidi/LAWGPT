@@ -1,206 +1,362 @@
 import json
 import re
-import time
-import google.generativeai as genai
 import os
+import time
+import random
+import asyncio
+import aiohttp
 from collections import Counter
+from tqdm import tqdm
 
 # ---------- CONFIG ----------
-INPUT_FILE = r"civil_cases.json"
-OUTPUT_FILE = "gen_contract_disputes.json"
-TRACKING_FILE = "gen_tracking.json"
-GEMINI_MODEL = "gemini-2.5-flash-lite"
-API_KEY = "AIzaSyByofJwHz-ULKTZP3TboSnDSgxgTIrA9OM"
+MODE = "criminal"   # "civil" or "criminal"
 
-BATCH_SIZE = 5
-MAX_INPUT_CHARS = 14000
-WAIT_BETWEEN_REQUESTS = 5
-MAX_RETRIES = 5
-SAVE_INTERVAL = 5  # save output every N processed cases for speed
+CIVIL_INPUT    = r"C:\Users\Kushal\Desktop\new\civil_cases.json"
+CIVIL_OUTPUT   = r"C:\Users\Kushal\Desktop\new\gen_civil.json"
+CIVIL_TRACKING = r"C:\Users\Kushal\Desktop\new\gen_tracking_civil.json"
 
-# ---------- SETUP ----------
-genai.configure(api_key=API_KEY)
+CRIMINAL_INPUT    = r"C:\Users\Kushal\Desktop\new\criminal_cases.json"
+CRIMINAL_OUTPUT   = r"C:\Users\Kushal\Desktop\new\gen_criminal.json"
+CRIMINAL_TRACKING = r"C:\Users\Kushal\Desktop\new\gen_tracking_criminal.json"
+
+API_KEY ="AIzaSyCAEEIT9lc5WxLAyq_N4SaKouAggntDxC4"
+GEMINI_MODEL   = "gemini-2.5-flash-lite"
+
+MIN_CONCURRENCY = 2
+MAX_CONCURRENCY = 3
+BATCH_MAX_ITEMS = 5
+BATCH_MAX_CHARS = 14000
+RETRY_CYCLES = 5
+BACKOFF_BASE = 2
+TARGET_FAST = 8       # seconds per batch → speed up if faster
+TARGET_SLOW = 15      # seconds per batch → slow down if slower
+
 
 # ---------- PROMPT ----------
 REWRITER_PROMPT = """
 You are given an array of JSON case objects.
-Process every case as a contract dispute.
-For each case:
-   - "instruction": Use exactly this text:
-     "When giving your reply, first provide your reasoning process before the <DTK> tag, and then answer.
-      Based on the following facts, charge, and legal provisions, summarize the unified legal reasoning and list all cited legal references."
-   - "question": Write as:
-     Facts: ...
-     Charge: ...
-     Law: ...
-     Law content: ...
-     (Use only info from original case)
-   - "answer": An object with:
-       "reasoning": Single paragraph combining facts, arguments, procedures, and judgment outcome.
-       "reference": Dictionary with legal sections or case laws exactly as stated in judgment.
-Only output a valid JSON array of the processed cases.
-Do not include any explanations or text outside the JSON.
+
+For each case, rewrite it into the following structure:
+
+{
+  "case_id": "<same as input>",
+  "instruction": "Summarize the case and also answer the legal question.",
+  "question": "<short decision-focused question derived from the 'charge' and 'law'>",
+  "analysis": {
+    "case_summary": {
+      "facts": "<use 'facts' field>",
+      "legal_issue": "<use 'charge' field>",
+      "law_applied": "<use 'law' and 'law_content' fields>",
+      "judgment": "<use 'judgment' field>"
+    },
+    "court_reasoning": {
+      "reasoning": "<a single coherent paragraph combining facts, arguments, procedures, and outcome>",
+      "decision": "<short final decision in plain words>"
+    }
+  },
+  "metadata": {
+    "category": "<use 'category'>",
+    "case_type": "<use 'case_type'>",
+    "law": "<primary law or statute>"
+  }
+}
+
+Rules:
+- Do not invent facts or provisions. Only use the input fields.
+- The "question" should be clear, concise, and decision-focused (remove redundant law descriptions).
+- Always include both "case_summary" and "court_reasoning" inside "analysis".
+- The output JSON array must have exactly the same number of items as the input array, in the same order.
+- Return ONLY a valid JSON array of processed cases. No explanations outside JSON.
 """
+
+
+
 
 # ---------- HELPERS ----------
 def clean_json_response(raw_text):
     raw_text = raw_text.strip()
-    raw_text = re.sub(r"^```json\s*", "", raw_text)
+    raw_text = re.sub(r"^```(?:json)?\s*", "", raw_text, flags=re.IGNORECASE)
     raw_text = re.sub(r"```$", "", raw_text)
-    match = re.search(r"\[.*\]", raw_text, re.DOTALL)
-    return match.group(0) if match else raw_text
+    # Prefer array, else object
+    m = re.search(r"\[.*\]", raw_text, re.DOTALL)
+    if m:
+        return m.group(0)
+    m = re.search(r"\{.*\}", raw_text, re.DOTALL)
+    if m:
+        return m.group(0)
+    return raw_text
 
-def clean_newlines(obj):
-    if isinstance(obj, str):
-        return " ".join(obj.replace("\n", " ").split())
-    elif isinstance(obj, list):
-        return [clean_newlines(i) for i in obj]
-    elif isinstance(obj, dict):
-        return {k: clean_newlines(v) for k, v in obj.items()}
-    return obj
 
-def load_tracking():
+def normalize_case(input_case, output_case):
+    return {
+        "case_id": input_case.get("case_id", ""),
+        "instruction": output_case.get("instruction") or "Summarize the case and also answer the legal question.",
+        "question": output_case.get("question") or f"What did the High Court decide in relation to {input_case.get('charge','')}?",
+        "analysis": {
+            "case_summary": {
+                "facts": (
+                    output_case.get("analysis", {})
+                               .get("case_summary", {})
+                               .get("facts")
+                    or input_case.get("facts", "")
+                ),
+                "legal_issue": (
+                    output_case.get("analysis", {})
+                               .get("case_summary", {})
+                               .get("legal_issue")
+                    or input_case.get("charge", "")
+                ),
+                "law_applied": (
+                    output_case.get("analysis", {})
+                               .get("case_summary", {})
+                               .get("law_applied")
+                    or f"{input_case.get('law','')} {input_case.get('law_content','')}"
+                ),
+                "judgment": (
+                    output_case.get("analysis", {})
+                               .get("case_summary", {})
+                               .get("judgment")
+                    or input_case.get("judgment", "")
+                )
+            },
+            "court_reasoning": {
+                "reasoning": (
+                    output_case.get("analysis", {})
+                               .get("court_reasoning", {})
+                               .get("reasoning")
+                    or ""
+                ),
+                "decision": (
+                    output_case.get("analysis", {})
+                               .get("court_reasoning", {})
+                               .get("decision")
+                    or ""
+                )
+            }
+        },
+        "metadata": {
+            "category": input_case.get("category", ""),
+            "case_type": input_case.get("case_type", ""),
+            "law": input_case.get("law", "")
+        }
+    }
+
+
+
+def load_json_file(path, default):
     try:
-        if not os.path.exists(TRACKING_FILE):
-            return {}
-        with open(TRACKING_FILE, "r", encoding="utf-8") as f:
-            content = f.read().strip()
-            if not content:
-                return {}
-            return json.loads(content)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {}
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except:
+        return default
+    return default
 
-def save_tracking(tracking):
-    with open(TRACKING_FILE, "w", encoding="utf-8") as f:
-        json.dump(tracking, f, ensure_ascii=False, indent=4)
-
-def save_output(data, output_file):
-    data = clean_newlines(data)
-    with open(output_file, "w", encoding="utf-8") as f:
+def save_json_file(path, data):
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-def process_entries(entries, char_limit):
-    entries_str = json.dumps(entries, ensure_ascii=False)
-    if len(entries_str) > char_limit:
-        entries_str = entries_str[:char_limit]
+# ---------- GEMINI CALL ----------
+async def call_gemini(session, entries):
+    MODEL_TRY = [GEMINI_MODEL, "gemini-1.5-flash", "gemini-1.5-pro"]
+    # Trim oversized fields to lower truncation risk
+    def _clip(s, n): 
+        return s if not isinstance(s, str) or len(s) <= n else (s[:n] + " ...[truncated]")
+    slim = []
+    for c in entries:
+        d = dict(c)
+        for k in ("facts", "law_content", "judgment"):
+            if k in d:
+                d[k] = _clip(d[k], 4000)  # ~4k chars per long field
+        slim.append(d)
 
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            response = genai.GenerativeModel(GEMINI_MODEL).generate_content(
-                f"{REWRITER_PROMPT}\n\nHere is the JSON:\n{entries_str}"
-            )
-            raw_text = clean_json_response(response.text)
-            processed_cases = json.loads(raw_text)
+    prompt_text = f"{REWRITER_PROMPT}\n\nHere is the JSON:\n{json.dumps(slim, ensure_ascii=False)}"
+    payload = {"contents": [{"parts": [{"text": prompt_text}]}]}
+    headers = {"Content-Type": "application/json"}
 
-            # --- Change #2: normalize both single & batch outputs ---
-            if isinstance(processed_cases, dict):
-                processed_cases = [processed_cases]
-            elif isinstance(processed_cases, list):
-                processed_cases = [pc for pc in processed_cases if isinstance(pc, dict)]
-            else:
-                processed_cases = []
+    for model_name in MODEL_TRY:
+        for attempt in range(RETRY_CYCLES):
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={API_KEY}"
+                async with session.post(url, headers=headers, json=payload) as resp:
+                    body_text = await resp.text()
+                    if resp.status != 200:
+                        # show first 1k chars for debugging
+                        print(f"⚠️ HTTP {resp.status} from {model_name}: {body_text[:1000]}")
+                        # Backoff only for 429/5xx; otherwise move to next model or fail fast
+                        if resp.status == 429 or 500 <= resp.status < 600:
+                            wait = BACKOFF_BASE * (2 ** attempt) + random.random()
+                            print(f"⏳ Backing off {wait:.1f}s...")
+                            await asyncio.sleep(wait)
+                            continue
+                        else:
+                            break  # try next model
+                    # status 200 -> parse JSON
+                    data = json.loads(body_text)
+                    # extract all text parts robustly
+                    candidates = data.get("candidates") or []
+                    if not candidates:
+                        print("⚠️ No candidates in response")
+                        break
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if not parts and isinstance(candidates[0].get("content"), list):
+                        # some responses wrap content as a list
+                        parts = candidates[0]["content"][0].get("parts", [])
+                    raw_text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                    if not raw_text:
+                        print(f"⚠️ Empty text in candidates for {model_name}")
+                        break
+                    fixed = clean_json_response(raw_text)
+                    # Debug previews
+                    print("🔍 Raw preview:", raw_text[:300].replace("\n", " "))
+                    print("🔍 Cleaned preview:", fixed[:300].replace("\n", " "))
+                    # load as list (accept object too)
+                    try:
+                        out = json.loads(fixed)
+                        if isinstance(out, dict):
+                            out = [out]
+                        return out
+                    except Exception as e:
+                        print("⚠️ json.loads failed:", e)
+                        # Try to salvage largest JSON array/object
+                        salvage = re.search(r"\[.*\]", fixed, re.DOTALL) or re.search(r"\{.*\}", fixed, re.DOTALL)
+                        if salvage:
+                            try:
+                                out = json.loads(salvage.group(0))
+                                if isinstance(out, dict):
+                                    out = [out]
+                                return out
+                            except:
+                                pass
+                        # Retry on next attempt
+                        wait = BACKOFF_BASE * (2 ** attempt) + random.random()
+                        print(f"⏳ Retrying in {wait:.1f}s due to invalid JSON...")
+                        await asyncio.sleep(wait)
+                        continue
+            except Exception as e:
+                wait = BACKOFF_BASE * (2 ** attempt) + random.random()
+                print(f"⚠️ Error: {e} → retrying in {wait:.1f}s")
+                await asyncio.sleep(wait)
+        # try next model if this one failed
+    return None
 
-            # Enforce required structure
-            required_keys = {"instruction", "question", "answer"}
-            processed_cases = [
-                {k: v for k, v in case.items() if k in required_keys}
-                for case in processed_cases
-            ]
 
-            if not processed_cases:
-                return False, "Empty or invalid response", []
+# ---------- MAIN PIPELINE ----------
+import time
+from tqdm import tqdm
 
-            # Ensure 'reference' exists
-            for case in processed_cases:
-                if isinstance(case, dict) and "answer" in case and isinstance(case["answer"], dict):
-                    if "reference" not in case["answer"] or not isinstance(case["answer"]["reference"], dict):
-                        case["answer"]["reference"] = {}
+# dynamic concurrency settings
+MIN_CONCURRENCY = 2
+MAX_CONCURRENCY = 6
+TARGET_FAST = 8       # seconds per round → speed up if faster
+TARGET_SLOW = 15      # seconds per round → slow down if slower
 
-            return True, None, clean_newlines(processed_cases)
+async def process_cases(input_file, output_file, tracking_file):
+    data = load_json_file(input_file, [])
+    results = load_json_file(output_file, [])
+    tracking = load_json_file(tracking_file, {})
 
-        except json.JSONDecodeError:
-            if attempt < MAX_RETRIES:
-                time.sleep(WAIT_BETWEEN_REQUESTS * attempt)
-            else:
-                return False, "JSON parsing error", []
-        except Exception as e:
-            err_str = str(e)
-            if "429" in err_str:
-                wait_time = (WAIT_BETWEEN_REQUESTS * attempt) + 2
-                print(f"⏳ Rate limit hit. Waiting {wait_time}s...")
-                time.sleep(wait_time)
-            else:
-                if attempt < MAX_RETRIES:
-                    time.sleep(WAIT_BETWEEN_REQUESTS * attempt)
-                else:
-                    return False, err_str, []
+    # filter cases to process: new or failed ones
+    to_process = []
+    for case in data:
+        cid = case.get("case_id")
+        if tracking.get(cid, {}).get("status") != "success":
+            to_process.append(case)
 
-    return False, "Unknown error - no output from model", []
+    total_cases = len(to_process)
+    print(f"📌 {total_cases} cases to process out of {len(data)} total")
 
-# ---------- MAIN ----------
-def rewrite_dataset(input_file, output_file, batch_size=5, char_limit=14000):
-    with open(input_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    total_start = time.perf_counter()
 
-    tracking = load_tracking()
+    concurrency = MIN_CONCURRENCY   # start safe
+    idx = 0
 
-    if os.path.exists(output_file):
-        try:
-            with open(output_file, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-                if content:
-                    updated_data = json.loads(content)
-                    if len(updated_data) < len(data):
-                        updated_data.extend([{} for _ in range(len(data) - len(updated_data))])
-                else:
-                    updated_data = [{} for _ in range(len(data))]
-        except json.JSONDecodeError:
-            print("⚠ Output file corrupted. Starting fresh.")
-            updated_data = [{} for _ in range(len(data))]
+    async with aiohttp.ClientSession() as session:
+        with tqdm(total=total_cases, desc="Processing cases") as pbar:
+            while idx < total_cases:
+                # pick concurrency number of batches
+                active_batches = []
+                batch_case_count = 0
+
+                for _ in range(concurrency):
+                    if idx >= total_cases:
+                        break
+                    batch = to_process[idx:idx+BATCH_MAX_ITEMS]
+                    idx += BATCH_MAX_ITEMS
+                    batch_case_count += len(batch)
+
+                    batch_text = json.dumps(batch, ensure_ascii=False)
+                    if len(batch_text) > BATCH_MAX_CHARS:
+                        for case in batch:
+                            active_batches.append([case])
+                    else:
+                        active_batches.append(batch)
+
+                # run these batches in parallel
+                start = time.perf_counter()
+                await asyncio.gather(*[
+                    process_batch(session, batch, results, tracking, output_file, tracking_file)
+                    for batch in active_batches
+                ])
+                end = time.perf_counter()
+                elapsed = end - start
+
+                # update progress bar by number of cases processed in this round
+                pbar.update(batch_case_count)
+
+                # log speed & concurrency
+                print(f"⚡ Concurrency={concurrency}, Round time={elapsed:.2f}s")
+
+                # adjust concurrency dynamically
+                if elapsed < TARGET_FAST and concurrency < MAX_CONCURRENCY:
+                    concurrency += 1
+                    print(f"⬆️ Increasing concurrency → {concurrency}")
+                elif elapsed > TARGET_SLOW and concurrency > MIN_CONCURRENCY:
+                    concurrency -= 1
+                    print(f"⬇️ Decreasing concurrency → {concurrency}")
+
+    total_end = time.perf_counter()
+    elapsed_total = total_end - total_start
+
+    success_count = sum(1 for v in tracking.values() if v.get("status") == "success")
+    fail_count = sum(1 for v in tracking.values() if v.get("status") == "fail")
+    print(f"\n🎯 Completed. Success: {success_count}, Fail: {fail_count}")
+    print(f"⏱️ Total pipeline time: {elapsed_total:.2f} seconds")
+
+    if total_cases:
+        avg_time = elapsed_total / ((total_cases + BATCH_MAX_ITEMS - 1) // BATCH_MAX_ITEMS)
+        print(f"⚡ Average time per batch: {avg_time:.2f} seconds")
+
+
+
+async def process_batch(session, batch, results, tracking, output_file, tracking_file):
+    ids = [c.get("case_id") for c in batch]
+    print(f"\n🔄 Processing batch {ids}...")
+
+    start = time.perf_counter()
+    resp = await call_gemini(session, batch)
+    end = time.perf_counter()
+    elapsed = end - start
+    print(f"⏱️ Batch {ids} took {elapsed:.2f} seconds")
+
+    if resp and isinstance(resp, list):
+        for case, out in zip(batch, resp):
+            cid = case.get("case_id")
+            norm = normalize_case(case, out)
+            results.append(norm)
+            tracking[cid] = {"status": "success"}
+            print(f"✅ Case {cid} success")
     else:
-        updated_data = [{} for _ in range(len(data))]
+        for case in batch:
+            cid = case.get("case_id")
+            tracking[cid] = {"status": "fail", "reason": "Model failed or invalid JSON"}
+            print(f"❌ Case {cid} failed")
 
-    total_cases = len(data)
-    processed_count = 0
-    fail_reasons = []
-
-    # 🔹 Only check {}
-    pending_cases = [(str(i), entry) for i, entry in enumerate(data, 1) if updated_data[i-1] == {}]
-
-    for i in range(0, len(pending_cases), batch_size):
-        batch = pending_cases[i:i+batch_size]
-        batch_keys = [k for k, _ in batch]
-        batch_entries = [e for _, e in batch]
-        print(f"🔄 Processing cases {batch_keys} ({i+1} to {i+len(batch)}) of {total_cases}...")
-        success, fail_reason, processed_cases = process_entries(batch_entries, char_limit)
-
-        for k, processed_case in zip(batch_keys, processed_cases if (success and processed_cases) else [{}] * len(batch_keys)):
-            idx = int(k) - 1
-            if success and processed_cases:
-                updated_data[idx] = processed_case
-                tracking[k] = {"status": "success"}
-                print(f"✅ Case {k} processed successfully.")
-            else:
-                updated_data[idx] = {}
-                tracking[k] = {"status": "fail", "reason": fail_reason or "Empty or invalid response"}
-                fail_reasons.append(fail_reason or "Empty or invalid response")
-                print(f"❌ Case {k} failed. Reason: {fail_reason or 'Empty or invalid response'}")
-
-            processed_count += 1
-            save_tracking(tracking)
-            if processed_count % SAVE_INTERVAL == 0:
-                save_output(updated_data, output_file)
-
-    save_output(updated_data, output_file)
-    success_count = sum(1 for case in updated_data if case != {})
-    fail_count = total_cases - success_count
-    print(f"✅ Processing complete. Output saved to {output_file}")
-    print(f"Success: {success_count}, Failed: {fail_count}")
-    if fail_reasons:
-        reason_counts = Counter(fail_reasons)
-        print("Failure reasons:", dict(reason_counts))
-
+    save_json_file(output_file, results)
+    save_json_file(tracking_file, tracking)
 # ---------- RUN ----------
 if __name__ == "__main__":
-    rewrite_dataset(INPUT_FILE, OUTPUT_FILE)
+    if MODE == "civil":
+        asyncio.run(process_cases(CIVIL_INPUT, CIVIL_OUTPUT, CIVIL_TRACKING))
+    else:
+        asyncio.run(process_cases(CRIMINAL_INPUT, CRIMINAL_OUTPUT, CRIMINAL_TRACKING))
