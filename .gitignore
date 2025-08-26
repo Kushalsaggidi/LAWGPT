@@ -1,2 +1,5 @@
 data/
 .env
+polish_log_civil.txt
+polish_log_criminal.txt
+Helpers/

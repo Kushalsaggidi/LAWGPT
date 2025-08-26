@@ -1,789 +1,832 @@
-#!/usr/bin/env python3
-"""
-KGDG Verification Pipeline v4 - With Robust Tracking & Progress
-Enhanced with comprehensive tracking, progress bars, and resume capability.
-Modified to remove content length filtering, align with input data structure, and add logging, schema validation, and optimized batch processing.
-Designed to remove invalid cases without correcting them.
-"""
-
-import asyncio
-import argparse
 import json
 import os
 import re
 import time
+import random
+import asyncio
+import aiohttp
+from tqdm import tqdm
+from pathlib import Path
 import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-import google.generativeai as genai
-from jsonschema import validate, ValidationError
+import traceback
+from asyncio import Lock
 
-# ==================== LOGGING SETUP ====================
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("verify.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
-
-# ==================== CONFIG ====================
-def parse_args():
-    """Parse command-line arguments for file paths."""
-    parser = argparse.ArgumentParser(description="KGDG Verification Pipeline")
-    parser.add_argument("--input-dir", default="Data_Polish", help="Directory for input JSON files")
-    parser.add_argument("--output-dir", default="Data_Verify", help="Directory for output and tracking JSON files")
-    parser.add_argument("--mode", default="civil", choices=["civil", "criminal", "both"], help="Processing mode")
-    return parser.parse_args()
-
-args = parse_args()
-MODE = args.mode
+# ---------- CONFIG ----------
+MODE = "civil"  # "civil" or "criminal"
 
 INPUT_FILES = {
-    "civil": r"C:\Users\Kushal\Desktop\new\Data_Polish\polish_civil.json",
-    "criminal": r"C:\Users\Kushal\Desktop\new\Data_Polish\polish_criminal.json"
+    "civil": Path(r"C:\Users\Kushal\Desktop\new\Data_Polish\polish_civil.json"),
+    "criminal": Path(r"C:\Users\Kushal\Desktop\new\Data_Polish\polish_criminal.json")
 }
 
 OUTPUT_FILES = {
-    "civil": r"C:\Users\Kushal\Desktop\new\Data_Verify\verified_civil.json",
-    "criminal": r"C:\Users\Kushal\Desktop\new\Data_Verify\verified_criminal.json"
+    "civil": Path(r"C:\Users\Kushal\Desktop\new\Data_Verify\verified_civil.json"),
+    "criminal": Path(r"C:\Users\Kushal\Desktop\new\Data_Verify\verified_criminal.json")
 }
 
 TRACKING_FILES = {
-    "civil": r"C:\Users\Kushal\Desktop\new\Data_Verify\tracking_civil.json",
-    "criminal": r"C:\Users\Kushal\Desktop\new\Data_Verify\tracking_criminal.json"
+    "civil": Path(r"C:\Users\Kushal\Desktop\new\Data_Verify\tracking_civil.json"),
+    "criminal": Path(r"C:\Users\Kushal\Desktop\new\Data_Verify\tracking_criminal.json")
 }
 
-# API Configuration
+CHECKPOINT_FILES = {
+    "civil": Path(r"C:\Users\Kushal\Desktop\new\Data_Verify\checkpoint_civil.json"),
+    "criminal": Path(r"C:\Users\Kushal\Desktop\new\Data_Verify\checkpoint_criminal.json")
+}
+
+LOG_FILES = {
+    "civil": Path(r"C:\Users\Kushal\Desktop\new\Data_Verify\verify_log_civil.txt"),
+    "criminal": Path(r"C:\Users\Kushal\Desktop\new\Data_Verify\verify_log_criminal.txt")
+}
+
 API_KEYS = [
     'AIzaSyByofJwHz-ULKTZP3TboSnDSgxgTIrA9OM',
-    'AIzaSyCz41qZibYl1rca9Ye7dRV9dK5Hf-ZzbA',
+    'AIzaSyCz41qZibYl1rca9Ye7_pkKaaBlQnms6ME',
     'AIzaSyA27TjinZixsBBl1ZkY7dRV9dK5Hf-ZzbA',
     'AIzaSyBFEIHo4GKXri8a3rNAaQKq0EwRSrwjwYs',
     'AIzaSyCAEEIT9lc5WxLAyq_N4SaKouAggntDxC4'
 ]
 
-MODEL_TRY = ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.5-pro"]
+GEMINI_MODEL = "gemini-2.5-flash-lite"
+MODEL_VARIANTS = ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.5-pro"]
 
-# Settings
-CONCURRENCY = 4
-BATCH_SIZE = 3
-MAX_RETRIES = 3
-RETRY_DELAY = 2
+MIN_CONCURRENCY = 1
+MAX_CONCURRENCY = 3
+BATCH_MAX_ITEMS = 5
+BATCH_MAX_CHARS = 12000
+RETRY_CYCLES = 5
+BACKOFF_BASE = 2
+RATE_LIMIT_DELAY = 0.3
+TARGET_FAST = 8
+TARGET_SLOW = 15
+MAX_INDIVIDUAL_RETRIES = 3
 
-# Quality control
-CONFIDENCE_THRESHOLD = 0.6
+# ---------- LOGGING SETUP ----------
+def setup_logging(log_file):
+    os.makedirs(log_file.parent, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(log_file, mode='a', encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    return logger
 
-# Retryable failure reasons
-RETRYABLE_REASONS = [
-    "api_quota_exceeded",
-    "rate_limit_hit",
-    "timeout_error",
-    "network_error",
-    "model_unavailable",
-    "generic_api_error"
-]
+# ---------- VERIFICATION PROMPT ----------
+VERIFY_PROMPT = """
+You are a legal case validator. Evaluate each legal case for validity and consistency.
 
-# Input schema for validation
-CASE_SCHEMA = {
-    "type": "object",
-    "required": ["case_id", "instruction", "question", "analysis"],
-    "properties": {
-        "case_id": {"type": "string"},
-        "instruction": {"type": "string"},
-        "question": {"type": "string"},
-        "analysis": {
-            "type": "object",
-            "required": ["case_summary"],
-            "properties": {
-                "case_summary": {
-                    "type": "object",
-                    "required": ["reasoning", "law_applied"],
-                    "properties": {
-                        "reasoning": {"type": "string"},
-                        "law_applied": {"type": "string"},
-                        "facts": {"type": "string"},
-                        "legal_issue": {"type": "string"},
-                        "judgment": {"type": "string"}
-                    }
-                },
-                "court_reasoning": {
-                    "type": "object",
-                    "properties": {
-                        "reasoning": {"type": "string"},
-                        "decision": {"type": "string"}
-                    }
-                }
-            }
-        },
-        "metadata": {
-            "type": "object",
-            "properties": {
-                "category": {"type": "string"},
-                "case_type": {"type": "string"},
-                "law": {"type": "string"}
-            }
-        }
-    }
-}
+For each case, respond with exactly one line:
+KEEP - if the case has sound legal reasoning and consistency  
+REMOVE: [brief reason] - if the case has major flaws
 
-# Verification prompts
-QUICK_FILTER_PROMPT = """
-TASK: Filter legal cases. Mark as false if ANY critical issue exists:
+VALIDATION CRITERIA:
+1. Question-Analysis Alignment: Does the analysis actually answer the legal question asked? (Including negative outcomes, withdrawals, dismissals, etc.)
+2. Facts-Legal Issue Consistency: Do the facts logically lead to the stated legal issue?
+3. Law Application Accuracy: Is the cited law correctly applied to the legal issue?
+4. Court Reasoning Logic: Does the reasoning follow legal principles and connect to the facts?
+5. Judgment Consistency: Does the final judgment align with the reasoning provided?
+6. Metadata Accuracy: Do category, case_type, and law match the case content?
 
-REJECT (false) if:
-1. Missing required fields (instruction, question, case_summary.reasoning, case_summary.law_applied)
-2. Placeholder text like "[placeholder]", "TODO", "example"
-3. Gibberish or corrupted text
-4. Duplicate content across fields
-5. Non-English content
-6. Empty or null fields
+KEEP cases that:
+- Have coherent legal logic flow (facts → issue → law → reasoning → judgment)
+- Correctly cite and apply relevant laws
+- Provide sound court reasoning that addresses the legal question
+- Show consistency between all components
+- **Include valid procedural outcomes (withdrawals, dismissals, settlements)**
+- **Answer the question accurately, even with "negative" outcomes**
 
-KEEP (true) if:
-- Complete fields with real content
-- Coherent legal language
-- Proper structure
+REMOVE cases with:
+- Major contradictions between facts and reasoning
+- Incorrect legal citations or misapplied laws
+- Reasoning that doesn't address the stated legal question AT ALL
+- Judgment that contradicts the reasoning
+- Missing or nonsensical critical information
+- Factual inconsistencies that undermine the case
 
-Return JSON array: [true, false, true, ...]
-When uncertain, KEEP the case (true).
+IMPORTANT: A case that says "No, the court did not do X because Y happened" IS a valid answer to "Did the court do X?" Don't remove cases just because the outcome was procedural or negative.
+
+Be thorough but not overly strict - keep cases that are legally sound even if the outcome wasn't a substantive ruling.
+Respond with one decision per case, in the exact order provided.
 """
 
-CONFIDENCE_PROMPT = """
-TASK: Score legal case quality with confidence.
-
-Rate each case 0-1:
-- 1.0 = Excellent, definitely keep
-- 0.8+ = Good, likely keep
-- 0.6+ = Acceptable, borderline
-- 0.4+ = Poor, likely reject
-- 0.0-0.3 = Seriously flawed
-
-Return JSON array:
-[
-  {"keep": true, "confidence": 0.85, "reason": "Strong reasoning"},
-  {"keep": false, "confidence": 0.2, "reason": "Poor quality"},
-  ...
-]
-"""
-
-# ==================== UTILITIES ====================
-def load_json(file_path: str) -> Any:
-    """Load JSON file safely."""
+# ---------- HELPERS ----------
+def load_json_file(path, default, logger):
+    """Safely load JSON file with error handling"""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        if path.exists():
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                count = len(data) if isinstance(data, (list, dict)) else 0
+                logger.info(f"✅ Loaded {count} items from {path}")
+                return data
+        else:
+            logger.info(f"📝 File {path} doesn't exist, using default")
+            return default
+    except json.JSONDecodeError as e:
+        logger.error(f"❌ JSON decode error in {path}: {e}")
+        return default
     except Exception as e:
-        logger.error(f"Error loading {file_path}: {e}")
-        return {} if 'tracking' in file_path else []
+        logger.error(f"❌ Error loading {path}: {e}")
+        return default
 
-def save_json_atomic(data: Any, file_path: str) -> None:
-    """Save JSON file atomically to prevent corruption."""
-    temp_path = f"{file_path}.tmp"
+def save_json_file(path, data, logger):
+    """Safely save JSON file with error handling"""
     try:
-        with open(temp_path, 'w', encoding='utf-8') as f:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        temp_path = path.with_suffix(path.suffix + ".tmp")
+        with open(temp_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        os.replace(temp_path, file_path)
+        
+        temp_path.replace(path)
+        
+        count = len(data) if isinstance(data, (list, dict)) else 0
+        logger.debug(f"💾 Saved {count} items to {path}")
+        
     except Exception as e:
-        logger.error(f"Error saving {file_path}: {e}")
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+        logger.error(f"❌ Error saving {path}: {e}")
+        if temp_path.exists():
+            temp_path.unlink()
 
-def get_case_id(case: Dict) -> str:
-    """Get case identifier."""
-    return case.get("id", case.get("case_id", f"case_{hash(str(case)) % 100000}"))
-
-def clean_response(text: str) -> str:
-    """Clean API response to extract JSON."""
-    text = text.strip()
-    text = re.sub(r"^```(?:json)?", "", text, flags=re.MULTILINE)
-    text = re.sub(r"```$", "", text, flags=re.MULTILINE)
-    
-    array_match = re.search(r'\[.*?\]', text, re.DOTALL)
-    if array_match:
-        return array_match.group(0)
-    
-    logger.error(f"Malformed API response: {text[:100]}...")
-    raise ValueError("Could not extract valid JSON array")
-
-def calculate_content_length(case: Dict) -> int:
-    """Calculate total content length based on actual case structure."""
-    parts = []
-
-    # Include instruction and question
-    parts.append(str(case.get("instruction", "")))
-    parts.append(str(case.get("question", "")))
-
-    # Handle analysis block
-    analysis = case.get("analysis", {})
-    if isinstance(analysis, dict):
-        for section in analysis.values():
-            if isinstance(section, dict):
-                parts.extend(str(v) for v in section.values())
-            elif isinstance(section, str):
-                parts.append(section)
-
-    # Include metadata
-    metadata = case.get("metadata", {})
-    if isinstance(metadata, dict):
-        parts.extend(str(v) for v in metadata.values())
-
-    content = " ".join(parts)
-    return len(content.strip())
-
-def has_basic_issues(case: Dict) -> bool:
-    """Check for obvious structural issues."""
-    # Check required fields
-    if not case.get("instruction") or not case.get("question"):
-        return True
-    
-    analysis = case.get("analysis", {})
-    if not isinstance(analysis, dict):
-        return True
-    
-    case_summary = analysis.get("case_summary", {})
-    if not case_summary.get("reasoning") or not case_summary.get("law_applied"):
-        return True
-    
-    # Check for placeholders
-    all_text = " ".join([
-        str(case.get("instruction", "")),
-        str(case.get("question", "")),
-        str(case_summary.get("reasoning", "")),
-        str(case_summary.get("law_applied", "")),
-        str(analysis.get("court_reasoning", {}).get("reasoning", ""))
-    ]).lower()
-    
-    placeholders = ["[placeholder]", "todo", "example", "sample", "insert", "xxx"]
-    return any(p in all_text for p in placeholders)
-
-def format_time(seconds: float) -> str:
-    """Format time duration."""
-    if seconds < 60:
-        return f"{seconds:.1f}s"
-    elif seconds < 3600:
-        return f"{seconds/60:.1f}m"
-    else:
-        return f"{seconds/3600:.1f}h"
-
-def print_progress_bar(current: int, total: int, width: int = 40) -> str:
-    """Create a simple progress bar."""
-    if total == 0:
-        return "[" + "=" * width + "] 100%"
-    
-    progress = current / total
-    filled = int(width * progress)
-    bar = "=" * filled + "-" * (width - filled)
-    percentage = progress * 100
-    return f"[{bar}] {percentage:.1f}%"
-
-# ==================== API MANAGER ====================
-class APIManager:
-    def __init__(self):
-        self.keys = API_KEYS.copy()
-        self.models = MODEL_TRY.copy()
-        self.current_key = 0
-        self.current_model = 0
-        self.exhausted_keys = set()
-    
-    def get_current_key(self) -> str:
-        available = [k for i, k in enumerate(self.keys) if i not in self.exhausted_keys]
-        if not available:
-            self.exhausted_keys.clear()  # Reset
-            available = self.keys
-        return available[self.current_key % len(available)]
-    
-    def get_current_model(self) -> str:
-        return self.models[self.current_model % len(self.models)]
-    
-    def rotate_key(self):
-        self.current_key += 1
-    
-    def rotate_model(self):
-        self.current_model += 1
-    
-    def mark_key_exhausted(self, key: str):
-        try:
-            idx = self.keys.index(key)
-            self.exhausted_keys.add(idx)
-        except ValueError:
-            pass
-
-# ==================== TRACKING MANAGER ====================
-class TrackingManager:
-    def __init__(self, tracking_file: str):
-        self.tracking_file = tracking_file
-        self.data = self._load_tracking()
-    
-    def _load_tracking(self) -> Dict:
-        """Load tracking data with metadata."""
-        data = load_json(self.tracking_file)
+def print_tracking_summary(tracking, logger):
+    """Print detailed tracking statistics"""
+    if not tracking:
+        logger.info("📊 No tracking data available")
+        return
         
-        if not isinstance(data, dict):
-            data = {}
+    keep_count = sum(1 for v in tracking.values() if v.get("decision") == "KEEP")
+    remove_count = sum(1 for v in tracking.values() if v.get("decision") == "REMOVE")
+    fail_count = sum(1 for v in tracking.values() if v.get("status") == "fail")
+    invalid_count = sum(1 for v in tracking.values() if v.get("status") == "invalid")
+    total_tracked = len(tracking)
+    
+    logger.info("📊 Tracking Summary:")
+    logger.info(f"   Total Tracked Cases: {total_tracked}")
+    logger.info(f"   ✅ KEPT: {keep_count}")
+    logger.info(f"   ❌ REMOVED: {remove_count}")
+    logger.info(f"   🔄 Failed: {fail_count}")
+    logger.info(f"   ⚠️ Invalid: {invalid_count}")
+    
+    if remove_count > 0:
+        logger.info("   Removed Case Reasons:")
+        removed_cases = [(cid, info) for cid, info in tracking.items() 
+                        if info.get("decision") == "REMOVE"]
+        for cid, info in removed_cases[:5]:
+            logger.info(f"      {cid}: {info.get('reason', 'No reason provided')}")
+        if len(removed_cases) > 5:
+            logger.info(f"      ... and {len(removed_cases) - 5} more removed cases")
+
+# ---------- THREAD-SAFE FILE MANAGER ----------
+class FileManager:
+    def __init__(self, logger):
+        self.logger = logger
+        self.lock = Lock()
+    
+    async def update_results_and_tracking(self, results_file, tracking_file, new_results, new_tracking):
+        """Atomically update both results and tracking files"""
+        async with self.lock:
+            try:
+                current_results = load_json_file(results_file, [], self.logger)
+                current_tracking = load_json_file(tracking_file, {}, self.logger)
+                
+                if isinstance(current_results, list) and isinstance(new_results, list):
+                    current_results.extend(new_results)
+                
+                if isinstance(current_tracking, dict) and isinstance(new_tracking, dict):
+                    current_tracking.update(new_tracking)
+                
+                save_json_file(results_file, current_results, self.logger)
+                save_json_file(tracking_file, current_tracking, self.logger)
+                
+                return current_results, current_tracking
+                
+            except Exception as e:
+                self.logger.error(f"❌ Error updating files: {e}")
+                return None, None
+
+# ---------- API KEY MANAGER ----------
+class APIKeyManager:
+    def __init__(self, api_keys, logger):
+        self.keys = [
+            {
+                "key": k, 
+                "failures": 0, 
+                "last_used": 0, 
+                "requests": 0, 
+                "successes": 0,
+                "consecutive_failures": 0,
+                "cooldown_until": 0
+            } 
+            for k in api_keys
+        ]
+        self.lock = asyncio.Lock()
+        self.logger = logger
+        self.logger.info(f"🔑 Initialized {len(self.keys)} API keys")
+
+    async def get_key(self):
+        """Get the best available API key"""
+        async with self.lock:
+            current_time = time.time()
+            
+            available = [
+                k for k in self.keys 
+                if k["failures"] < RETRY_CYCLES 
+                and k["cooldown_until"] <= current_time
+                and k["consecutive_failures"] < 3
+            ]
+            
+            if not available:
+                available = [k for k in self.keys if k["cooldown_until"] <= current_time]
+                
+            if not available:
+                available = [min(self.keys, key=lambda k: k["consecutive_failures"])]
+                self.logger.warning("⚠️ All keys exhausted, using least failed key")
+            
+            key_info = min(available, key=lambda k: (k["last_used"], -k.get("successes", 0)))
+            key_info["last_used"] = current_time
+            key_info["requests"] += 1
+            
+            self.logger.debug(f"🔑 Selected key: {key_info['key'][-8:]} (success rate: {self._get_success_rate(key_info):.1f}%)")
+            return key_info["key"]
+
+    async def record_failure(self, key):
+        """Record API key failure with enhanced tracking"""
+        async with self.lock:
+            for k in self.keys:
+                if k["key"] == key:
+                    k["failures"] += 1
+                    k["consecutive_failures"] += 1
+                    
+                    if k["consecutive_failures"] >= 2:
+                        cooldown_time = min(60, k["consecutive_failures"] * 10)
+                        k["cooldown_until"] = time.time() + cooldown_time
+                        self.logger.warning(f"🚫 Key {key[-8:]} in cooldown for {cooldown_time}s")
+                    
+                    self.logger.debug(f"❌ Key {key[-8:]} failure #{k['failures']} (consecutive: {k['consecutive_failures']})")
+                    break
+
+    async def record_success(self, key):
+        """Record API key success"""
+        async with self.lock:
+            for k in self.keys:
+                if k["key"] == key:
+                    k["successes"] += 1
+                    k["consecutive_failures"] = 0
+                    k["cooldown_until"] = 0
+                    self.logger.debug(f"✅ Key {key[-8:]} success #{k['successes']}")
+                    break
+
+    def _get_success_rate(self, key_info):
+        """Calculate success rate for a key"""
+        return (key_info["successes"] / key_info["requests"] * 100) if key_info["requests"] > 0 else 0
+
+    def print_stats(self):
+        """Print detailed API key statistics"""
+        self.logger.info("\n🔑 API Key Performance:")
+        for i, k in enumerate(self.keys):
+            success_rate = self._get_success_rate(k)
+            cooldown_status = "🚫 COOLDOWN" if k["cooldown_until"] > time.time() else "✅ Active"
+            self.logger.info(f"   Key {i+1} ({k['key'][-8:]}): {k['successes']}/{k['requests']} ({success_rate:.1f}%) - {cooldown_status}")
+
+# ---------- GEMINI API CALL ----------
+async def call_gemini_verify(session, entries, api_manager, logger, max_retries=RETRY_CYCLES):
+    """Call Gemini API for case verification"""
+    
+    def _truncate_text(text, max_len=3000):
+        if not isinstance(text, str) or len(text) <= max_len:
+            return text
+        return text[:max_len] + " ...[truncated]"
+    
+    # Create slimmed version for API call
+    slim_entries = []
+    for case in entries:
+        slim_case = dict(case)
+        analysis = slim_case.get("analysis", {})
         
-        if "_meta" not in data:
-            data["_meta"] = {
-                "total_cases": 0,
-                "successful": 0,
-                "failed_permanent": 0,
-                "failed_retryable": 0,
-                "last_updated": datetime.now().isoformat(),
-                "start_time": datetime.now().isoformat()
+        case_summary = analysis.get("case_summary", {})
+        for field in ("facts", "law_applied", "judgment"):
+            if field in case_summary:
+                case_summary[field] = _truncate_text(case_summary[field])
+        
+        court_reasoning = analysis.get("court_reasoning", {})
+        for field in ("reasoning", "decision"):
+            if field in court_reasoning:
+                court_reasoning[field] = _truncate_text(court_reasoning[field])
+        
+        slim_entries.append(slim_case)
+
+    prompt_text = f"{VERIFY_PROMPT}\n\nHere are the cases to verify:\n{json.dumps(slim_entries, ensure_ascii=False)}"
+    logger.debug(f"📤 Payload size: {len(prompt_text)} characters for {len(entries)} cases")
+    
+    payload = {"contents": [{"parts": [{"text": prompt_text}]}]}
+    headers = {"Content-Type": "application/json"}
+
+    # Try each model variant
+    for model_name in MODEL_VARIANTS:
+        logger.debug(f"🤖 Trying model: {model_name}")
+        
+        for attempt in range(max_retries):
+            api_key = await api_manager.get_key()
+            
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                
+                timeout = aiohttp.ClientTimeout(total=60)
+                async with session.post(url, headers=headers, json=payload, timeout=timeout) as resp:
+                    body_text = await resp.text()
+                    
+                    if resp.status != 200:
+                        logger.warning(f"⚠️ HTTP {resp.status}: {body_text[:500]}")
+                        
+                        if resp.status == 429:
+                            wait = BACKOFF_BASE * (2 ** attempt) + random.uniform(0, 1)
+                            logger.info(f"⏳ Rate limited, backing off {wait:.1f}s...")
+                            await asyncio.sleep(wait)
+                            await api_manager.record_failure(api_key)
+                            continue
+                            
+                        elif 500 <= resp.status < 600:
+                            wait = BACKOFF_BASE * (2 ** attempt) + random.uniform(0, 1)
+                            logger.info(f"⏳ Server error, backing off {wait:.1f}s...")
+                            await asyncio.sleep(wait)
+                            await api_manager.record_failure(api_key)
+                            continue
+                            
+                        else:
+                            await api_manager.record_failure(api_key)
+                            break
+                    
+                    # Parse response
+                    try:
+                        data = json.loads(body_text)
+                    except json.JSONDecodeError as e:
+                        logger.error(f"❌ Invalid JSON response: {e}")
+                        await api_manager.record_failure(api_key)
+                        continue
+                    
+                    candidates = data.get("candidates", [])
+                    if not candidates:
+                        logger.warning("⚠️ No candidates in response")
+                        await api_manager.record_failure(api_key)
+                        continue
+                    
+                    content = candidates[0].get("content", {})
+                    if isinstance(content, list) and len(content) > 0:
+                        content = content[0]
+                    
+                    parts = content.get("parts", [])
+                    raw_text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                    
+                    if not raw_text:
+                        logger.warning(f"⚠️ Empty response from {model_name}")
+                        await api_manager.record_failure(api_key)
+                        continue
+                    
+                    await api_manager.record_success(api_key)
+                    logger.debug(f"✅ Successfully got response: {raw_text[:200].replace(chr(10), ' ')}")
+                    return raw_text.strip()
+                        
+            except asyncio.TimeoutError:
+                logger.error(f"⏰ Request timeout for model {model_name}")
+                await api_manager.record_failure(api_key)
+                continue
+                
+            except Exception as e:
+                await api_manager.record_failure(api_key)
+                logger.error(f"❌ Unexpected error: {e}")
+                logger.debug(traceback.format_exc())
+                
+                wait = BACKOFF_BASE * (2 ** attempt) + random.uniform(0, 1)
+                logger.info(f"⏳ Retrying in {wait:.1f}s...")
+                await asyncio.sleep(wait)
+                continue
+        
+        logger.warning(f"⚠️ Model {model_name} failed after {max_retries} attempts")
+    
+    logger.error("❌ All models failed")
+    return None
+
+# ---------- RESPONSE PROCESSING ----------
+def process_verification_response(input_cases, raw_response, logger):
+    """Process simple text verification response"""
+    kept_cases = []
+    tracking_updates = {}
+    
+    try:
+        # Split response into decision lines
+        decisions = [line.strip() for line in raw_response.split('\n') if line.strip()]
+        
+        logger.debug(f"🔄 Processing {len(decisions)} decisions for {len(input_cases)} cases")
+        
+        # Match decisions to cases
+        for i, case in enumerate(input_cases):
+            case_id = case.get("case_id", f"case_{i}")
+            
+            if i < len(decisions):
+                decision_line = decisions[i].upper()
+                
+                if "KEEP" in decision_line:
+                    kept_cases.append(case)  # Add original case as-is
+                    tracking_updates[case_id] = {
+                        "status": "success",
+                        "decision": "KEEP",
+                        "processed_at": time.time()
+                    }
+                    logger.debug(f"✅ KEPT case {case_id}")
+                    
+                elif "REMOVE" in decision_line:
+                    # Extract reason after "REMOVE:"
+                    reason = "Verification failed"
+                    if ":" in decisions[i]:
+                        reason = decisions[i].split(":", 1)[1].strip()
+                    
+                    tracking_updates[case_id] = {
+                        "status": "success", 
+                        "decision": "REMOVE",
+                        "reason": reason,
+                        "processed_at": time.time()
+                    }
+                    logger.debug(f"❌ REMOVED case {case_id}: {reason}")
+                    
+                else:
+                    # Unclear decision - default to keep with warning
+                    kept_cases.append(case)
+                    tracking_updates[case_id] = {
+                        "status": "success",
+                        "decision": "KEEP",
+                        "reason": "Unclear decision, defaulted to KEEP",
+                        "processed_at": time.time()
+                    }
+                    logger.warning(f"⚠️ Unclear decision for {case_id}: {decisions[i]}")
+            else:
+                # No decision available - default to keep
+                kept_cases.append(case)
+                tracking_updates[case_id] = {
+                    "status": "success",
+                    "decision": "KEEP", 
+                    "reason": "No decision received, defaulted to KEEP",
+                    "processed_at": time.time()
+                }
+                logger.warning(f"⚠️ No decision for {case_id}, defaulted to KEEP")
+        
+        return kept_cases, tracking_updates
+        
+    except Exception as e:
+        logger.error(f"❌ Error processing verification response: {e}")
+        logger.debug(f"🔍 Raw response: {raw_response}")
+        
+        # Fallback - keep all cases but mark as uncertain
+        fallback_tracking = {}
+        for case in input_cases:
+            case_id = case.get("case_id")
+            fallback_tracking[case_id] = {
+                "status": "success",
+                "decision": "KEEP",
+                "reason": f"Processing error, defaulted to KEEP: {str(e)}",
+                "processed_at": time.time()
             }
         
-        return data
-    
-    def save_tracking(self):
-        """Save tracking data atomically."""
-        self.data["_meta"]["last_updated"] = datetime.now().isoformat()
-        save_json_atomic(self.data, self.tracking_file)
-    
-    def should_process_case(self, case_id: str) -> bool:
-        """Check if case should be processed."""
-        if case_id not in self.data:
-            return True
-        
-        entry = self.data[case_id]
-        if entry["status"] == "success":
-            return False
-        
-        reason = entry.get("reason", "")
-        return reason in RETRYABLE_REASONS
-    
-    def mark_case_success(self, case_id: str):
-        """Mark case as successful."""
-        if case_id in self.data:
-            old_entry = self.data[case_id]
-            if old_entry["status"] == "fail":
-                reason = old_entry.get("reason", "")
-                if reason in RETRYABLE_REASONS:
-                    self.data["_meta"]["failed_retryable"] -= 1
-                else:
-                    self.data["_meta"]["failed_permanent"] -= 1
-        else:
-            self.data["_meta"]["total_cases"] += 1
-        
-        self.data[case_id] = {"status": "success"}
-        self.data["_meta"]["successful"] += 1
-    
-    def mark_case_failed(self, case_id: str, reason: str):
-        """Mark case as failed with reason."""
-        if case_id in self.data:
-            old_entry = self.data[case_id]
-            if old_entry["status"] == "success":
-                self.data["_meta"]["successful"] -= 1
-        else:
-            self.data["_meta"]["total_cases"] += 1
-        
-        self.data[case_id] = {
-            "status": "fail",
-            "reason": reason
-        }
-        
-        if reason in RETRYABLE_REASONS:
-            self.data["_meta"]["failed_retryable"] += 1
-        else:
-            self.data["_meta"]["failed_permanent"] += 1
-    
-    def get_stats(self) -> Dict:
-        """Get current statistics."""
-        return self.data["_meta"].copy()
-    
-    def print_tracking_summary(self):
-        """Print detailed tracking statistics."""
-        meta = self.data["_meta"]
-        total = meta["total_cases"]
-        successful = meta["successful"]
-        failed_perm = meta["failed_permanent"]
-        failed_retry = meta["failed_retryable"]
-        
-        logger.info("TRACKING FILE STATUS:")
-        logger.info(f"Total tracked cases: {total}")
-        logger.info(f"Successful: {successful} ({successful/total*100 if total > 0 else 0:.1f}%)")
-        logger.info(f"Failed (permanent): {failed_perm} ({failed_perm/total*100 if total > 0 else 0:.1f}%)")
-        logger.info(f"Failed (retryable): {failed_retry} ({failed_retry/total*100 if total > 0 else 0:.1f}%)")
-        
-        failure_reasons = {}
-        for case_id, entry in self.data.items():
-            if case_id.startswith("_"):
-                continue
-            if entry.get("status") == "fail":
-                reason = entry.get("reason", "unknown")
-                failure_reasons[reason] = failure_reasons.get(reason, 0) + 1
-        
-        if failure_reasons:
-            logger.info("Top failure reasons:")
-            for reason, count in sorted(failure_reasons.items(), key=lambda x: x[1], reverse=True)[:5]:
-                logger.info(f"  • {reason}: {count}")
+        return input_cases, fallback_tracking
 
-# ==================== VERIFIER ====================
-class CaseVerifier:
-    def __init__(self, case_type: str):
-        self.case_type = case_type
-        self.api_manager = APIManager()
-        self.tracking = TrackingManager(TRACKING_FILES[case_type])
-        self.verified_cases = []
-        self.batch_count = 0
-        self.start_time = time.time()
-        
-        self.stats = {
-            "processed_this_run": 0,
-            "successful_this_run": 0,
-            "failed_this_run": 0,
-            "batches_completed": 0,
-            "api_errors": 0
-        }
-    
-    def basic_filter(self, cases: List[Dict]) -> List[Dict]:
-        """Filter cases with obvious structural issues."""
-        logger.info("Basic filtering...")
-        filtered = []
-        
-        for case in cases:
-            case_id = get_case_id(case)
-            
-            try:
-                validate(instance=case, schema=CASE_SCHEMA)
-            except ValidationError as e:
-                logger.warning(f"Case {case_id} failed schema validation: {e.message}")
-                self.tracking.mark_case_failed(case_id, "invalid_data_structure")
-                continue
-            
-            if has_basic_issues(case):
-                self.tracking.mark_case_failed(case_id, "invalid_data_structure")
-                continue
-            
-            filtered.append(case)
-        
-        removed = len(cases) - len(filtered)
-        if removed > 0:
-            logger.info(f"Basic filter removed: {removed} cases")
-            self.tracking.save_tracking()
-        
-        return filtered
-    
-    async def verify_batch_api(self, cases: List[Dict], prompt: str) -> List[Dict]:
-        """Make API call to verify batch."""
-        for attempt in range(MAX_RETRIES + 1):
-            current_key = self.api_manager.get_current_key()
-            current_model = self.api_manager.get_current_model()
-            
-            try:
-                genai.configure(api_key=current_key)
-                model = genai.GenerativeModel(current_model)
-                
-                full_prompt = f"{prompt}\n\nCases:\n{json.dumps(cases, ensure_ascii=False, indent=1)}"
-                
-                response = await asyncio.to_thread(
-                    model.generate_content,
-                    full_prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=0.1,
-                        max_output_tokens=1000
-                    )
-                )
-                
-                result_text = clean_response(response.text)
-                
-                try:
-                    decisions = json.loads(result_text)
-                    
-                    if decisions and isinstance(decisions[0], dict):
-                        return [
-                            {
-                                "case": case,
-                                "keep": decision.get("keep", True),
-                                "confidence": decision.get("confidence", 1.0),
-                                "reason": decision.get("reason", "")
-                            }
-                            for case, decision in zip(cases, decisions)
-                        ]
-                    else:
-                        return [
-                            {
-                                "case": case,
-                                "keep": keep,
-                                "confidence": 1.0,
-                                "reason": ""
-                            }
-                            for case, keep in zip(cases, decisions)
-                        ]
-                
-                except json.JSONDecodeError:
-                    bools = re.findall(r'(true|false)', result_text.lower())
-                    if len(bools) == len(cases):
-                        return [
-                            {
-                                "case": case,
-                                "keep": b == 'true',
-                                "confidence": 1.0,
-                                "reason": ""
-                            }
-                            for case, b in zip(cases, bools)
-                        ]
-                    else:
-                        raise ValueError(f"Could not parse response")
-            
-            except Exception as e:
-                error_str = str(e)
-                self.stats["api_errors"] += 1
-                
-                if "quota" in error_str.lower() or "403" in error_str:
-                    self.api_manager.mark_key_exhausted(current_key)
-                    self.api_manager.rotate_key()
-                    return [{"error": "api_quota_exceeded", "case": case} for case in cases]
-                
-                if "429" in error_str or "rate" in error_str.lower():
-                    wait_time = RETRY_DELAY * (2 ** attempt)
-                    await asyncio.sleep(min(wait_time, 30))
-                    continue
-                
-                if attempt < MAX_RETRIES:
-                    if attempt % 2 == 0:
-                        self.api_manager.rotate_key()
-                    else:
-                        self.api_manager.rotate_model()
-                    await asyncio.sleep(RETRY_DELAY)
-                    continue
-                
-                return [{"error": "generic_api_error", "case": case} for case in cases]
-        
-        return [{"error": "generic_api_error", "case": case} for case in cases]
-    
-    async def process_batch(self, cases: List[Dict], prompt: str, stage_name: str) -> List[Dict]:
-        """Process a single batch with progress tracking."""
-        batch_start = time.time()
-        batch_size = len(cases)
-        
-        logger.info(f"Processing batch of {batch_size} cases...")
-        
-        decisions = await self.verify_batch_api(cases, prompt)
-        
-        successful_cases = []
-        failed_cases = []
-        
-        for decision in decisions:
-            if "error" in decision:
-                failed_cases.append(decision["case"])
-            else:
-                case = decision["case"]
-                case_id = get_case_id(case)
-                keep = decision["keep"]
-                confidence = decision.get("confidence", 1.0)
-                
-                if confidence < CONFIDENCE_THRESHOLD:
-                    keep = False
-                
-                if keep:
-                    successful_cases.append(case)
-                    self.tracking.mark_case_success(case_id)
-                    self.stats["successful_this_run"] += 1
-                else:
-                    self.tracking.mark_case_failed(case_id, "failed_quality_check")
-                    self.stats["failed_this_run"] += 1
-                self.stats["processed_this_run"] += 1
-        
-        if failed_cases:
-            logger.warning(f"{len(failed_cases)} cases failed in batch, retrying individually...")
-            for case in failed_cases:
-                individual_decision = (await self.verify_batch_api([case], prompt))[0]
-                case_id = get_case_id(case)
-                if "error" in individual_decision:
-                    self.tracking.mark_case_failed(case_id, individual_decision["error"])
-                    self.stats["failed_this_run"] += 1
-                else:
-                    keep = individual_decision["keep"]
-                    confidence = individual_decision.get("confidence", 1.0)
-                    if confidence < CONFIDENCE_THRESHOLD:
-                        keep = False
-                    if keep:
-                        successful_cases.append(case)
-                        self.tracking.mark_case_success(case_id)
-                        self.stats["successful_this_run"] += 1
-                    else:
-                        self.tracking.mark_case_failed(case_id, "failed_quality_check")
-                        self.stats["failed_this_run"] += 1
-                    self.stats["processed_this_run"] += 1
-        
-        self.tracking.save_tracking()
-        self._save_verified_cases()
-        
-        batch_time = time.time() - batch_start
-        self.batch_count += 1
-        self.stats["batches_completed"] += 1
-        
-        kept_count = len(successful_cases)
-        total_time = time.time() - self.start_time
-        
-        logger.info(f"Batch complete: {kept_count}/{batch_size} kept")
-        logger.info(f"Batch time: {format_time(batch_time)} | Total time: {format_time(total_time)}")
-        
-        return successful_cases
-    
-    def _save_verified_cases(self):
-        """Save verified cases incrementally."""
-        if self.verified_cases:
-            output_file = OUTPUT_FILES[self.case_type]
-            save_json_atomic(self.verified_cases, output_file)
-    
-    async def process_stage(self, cases: List[Dict], prompt: str, stage_name: str) -> List[Dict]:
-        """Process a verification stage with progress tracking."""
-        if not cases:
-            return cases
-        
-        total_cases = len(cases)
-        logger.info(f"{stage_name.upper()}: {total_cases} cases")
-        
-        batches = [cases[i:i + BATCH_SIZE] for i in range(0, len(cases), BATCH_SIZE)]
-        total_batches = len(batches)
-        
-        verified_cases = []
-        semaphore = asyncio.Semaphore(CONCURRENCY)
-        processed_batches = 0
-        
-        async def process_single_batch(batch_cases):
-            nonlocal processed_batches
-            async with semaphore:
-                batch_result = await self.process_batch(batch_cases, prompt, stage_name)
-                processed_batches += 1
-                
-                progress_bar = print_progress_bar(processed_batches, total_batches)
-                logger.info(f"Progress: {progress_bar} ({processed_batches}/{total_batches} batches)")
-                
-                return batch_result
-        
-        results = await asyncio.gather(*[process_single_batch(batch) for batch in batches])
-        
-        for batch_result in results:
-            verified_cases.extend(batch_result)
-            self.verified_cases.extend(batch_result)
-        
-        removed = total_cases - len(verified_cases)
-        logger.info(f"{stage_name} complete: {len(verified_cases)}/{total_cases} kept ({removed} removed)")
-        
-        return verified_cases
-    
-    def print_processing_summary(self, cases_to_process: List[Dict], new_cases: List[Dict], retry_cases: List[Dict]):
-        """Print processing plan summary."""
-        logger.info("PROCESSING PLAN:")
-        logger.info(f"Total input cases: {len(cases_to_process)}")
-        logger.info(f"New cases: {len(new_cases)}")
-        logger.info(f"Retry cases: {len(retry_cases)}")
-        logger.info(f"Batch size: {BATCH_SIZE} | Concurrency: {CONCURRENCY}")
-    
-    async def process_file(self):
-        """Process the verification pipeline."""
-        input_file = INPUT_FILES[self.case_type]
-        
-        logger.info(f"Processing {self.case_type.upper()} cases from {input_file}")
-        
-        all_cases = load_json(input_file)
-        if not all_cases:
-            logger.error(f"No cases found in {input_file}")
-            return
-        
-        logger.info(f"Loaded {len(all_cases)} total cases")
-        
-        self.tracking.print_tracking_summary()
-        
-        new_cases = []
-        retry_cases = []
-        skipped_count = 0
-        
-        for case in all_cases:
-            case_id = get_case_id(case)
-            
-            if not self.tracking.should_process_case(case_id):
-                skipped_count += 1
-                if case_id in self.tracking.data and self.tracking.data[case_id]["status"] == "success":
-                    self.verified_cases.append(case)
-            else:
-                if case_id in self.tracking.data:
-                    retry_cases.append(case)
-                else:
-                    new_cases.append(case)
-        
-        cases_to_process = new_cases + retry_cases
-        
-        if not cases_to_process:
-            logger.info("All cases already processed successfully!")
-            self._save_verified_cases()
-            return
-        
-        logger.info(f"Skipped {skipped_count} already successful cases")
-        self.print_processing_summary(cases_to_process, new_cases, retry_cases)
-        
-        current_cases = self.basic_filter(cases_to_process)
-        
-        if not current_cases:
-            logger.info("No cases remaining after basic filtering")
-            self._save_verified_cases()
-            return
-        
-        logger.info("Starting verification pipeline...")
-        
-        current_cases = await self.process_stage(current_cases, QUICK_FILTER_PROMPT, "Quick Filter")
-        
-        if current_cases:
-            current_cases = await self.process_stage(current_cases, CONFIDENCE_PROMPT, "Detailed Filter")
-        
-        self._save_verified_cases()
-        self.print_final_summary()
-    
-    def print_final_summary(self):
-        """Print comprehensive final summary."""
-        total_time = time.time() - self.start_time
-        tracking_stats = self.tracking.get_stats()
-        
-        logger.info(f"{self.case_type.upper()} VERIFICATION COMPLETE!")
-        logger.info(f"Total time: {format_time(total_time)}")
-        logger.info(f"Batches processed: {self.stats['batches_completed']}")
-        
-        logger.info("THIS RUN STATS:")
-        logger.info(f"Processed: {self.stats['processed_this_run']} cases")
-        logger.info(f"Successful: {self.stats['successful_this_run']}")
-        logger.info(f"Failed: {self.stats['failed_this_run']}")
-        
-        if self.stats["api_errors"] > 0:
-            logger.info(f"API errors: {self.stats['api_errors']}")
-        
-        logger.info("OVERALL PROGRESS:")
-        total = tracking_stats["total_cases"]
-        successful = tracking_stats["successful"]
-        logger.info(f"Total cases: {total}")
-        logger.info(f"Total successful: {successful} ({successful/total*100 if total > 0 else 0:.1f}%)")
-        logger.info(f"Output file: {OUTPUT_FILES[self.case_type]}")
-        logger.info(f"Tracking file: {TRACKING_FILES[self.case_type]}")
-        
-        if total_time > 0:
-            cases_per_second = self.stats["processed_this_run"] / total_time
-            logger.info(f"Processing speed: {cases_per_second:.2f} cases/second")
+# ---------- BATCH PROCESSING ----------
+async def process_verification_batch(session, batch, file_manager, output_file, tracking_file, api_manager, logger):
+    """Process a batch of cases for verification"""
+    batch_ids = [case.get("case_id", "unknown") for case in batch]
+    logger.info(f"🔥 Processing verification batch: {batch_ids}")
 
-# ==================== MAIN ====================
-async def main():
-    """Main function."""
-    logger.info("KGDG Verification Pipeline v4 - With Tracking & Progress")
-    logger.info(f"Mode: {MODE}")
-    logger.info(f"API Keys: {len(API_KEYS)} available")
-    logger.info(f"Models: {', '.join(MODEL_TRY)}")
-    logger.info("-" * 60)
+    start_time = time.perf_counter()
     
-    if MODE.lower() == "both":
-        file_types = ["civil", "criminal"]
-    elif MODE.lower() in ["civil", "criminal"]:
-        file_types = [MODE.lower()]
+    # Try batch processing first
+    response = await call_gemini_verify(session, batch, api_manager, logger)
+    
+    if response:
+        # Process batch response
+        kept_cases, batch_tracking = process_verification_response(batch, response, logger)
+        
+        logger.info(f"✅ Batch verification successful: {len(kept_cases)}/{len(batch)} cases kept")
+        
     else:
-        logger.error(f"Invalid MODE: {MODE}")
-        return
-    
-    for file_type in file_types:
-        verifier = CaseVerifier(file_type)
-        await verifier.process_file()
-        logger.info("-" * 60)
-    
-    logger.info("All verification tasks completed!")
+        # Batch failed - process individually
+        logger.warning(f"❌ Batch failed, processing {len(batch)} cases individually")
+        
+        kept_cases = []
+        batch_tracking = {}
+        
+        for case in batch:
+            case_id = case.get("case_id")
+            individual_success = False
+            
+            for retry in range(MAX_INDIVIDUAL_RETRIES):
+                try:
+                    individual_response = await call_gemini_verify(session, [case], api_manager, logger, max_retries=2)
+                    
+                    if individual_response:
+                        individual_kept, individual_tracking = process_verification_response([case], individual_response, logger)
+                        
+                        kept_cases.extend(individual_kept)
+                        batch_tracking.update(individual_tracking)
+                        
+                        logger.info(f"✅ Individual case {case_id} processed successfully")
+                        individual_success = True
+                        break
+                        
+                except Exception as e:
+                    logger.error(f"❌ Individual processing error for {case_id} (retry {retry+1}): {e}")
+                    if retry < MAX_INDIVIDUAL_RETRIES - 1:
+                        await asyncio.sleep(RATE_LIMIT_DELAY * (retry + 1))
+            
+            if not individual_success:
+                # Keep case by default if all processing fails
+                kept_cases.append(case)
+                batch_tracking[case_id] = {
+                    "status": "fail", 
+                    "reason": "Individual processing failed after retries",
+                    "processed_at": time.time()
+                }
+                logger.error(f"❌ Case {case_id} failed after {MAX_INDIVIDUAL_RETRIES} individual attempts")
 
+    # Save results atomically
+    await file_manager.update_results_and_tracking(output_file, tracking_file, kept_cases, batch_tracking)
+    
+    end_time = time.perf_counter()
+    elapsed = end_time - start_time
+    
+    success_count = sum(1 for tracking in batch_tracking.values() 
+                       if tracking.get("status") == "success")
+    kept_count = len(kept_cases)
+    
+    logger.info(f"⚡ Batch {batch_ids} completed in {elapsed:.2f}s ({success_count}/{len(batch)} processed, {kept_count} kept)")
+    
+    return elapsed
+
+# ---------- MAIN PIPELINE ----------
+async def verify_cases(mode):
+    """Main verification pipeline"""
+    
+    # Select files based on mode
+    input_file = INPUT_FILES[mode]
+    output_file = OUTPUT_FILES[mode]
+    tracking_file = TRACKING_FILES[mode]
+    checkpoint_file = CHECKPOINT_FILES[mode]
+    log_file = LOG_FILES[mode]
+    
+    logger = setup_logging(log_file)
+    logger.info("🚀 Starting Legal Case Verification Pipeline")
+
+    # Log processing configuration
+    logger.info("📋 Processing Configuration:")
+    logger.info(f"   - Mode: {mode}")
+    logger.info(f"   - Input: {input_file}")
+    logger.info(f"   - Output: {output_file}")
+    logger.info(f"   - Tracking: {tracking_file}")
+    logger.info(f"   - Batch Size: {BATCH_MAX_ITEMS} cases")
+    logger.info(f"   - Max Payload: {BATCH_MAX_CHARS} chars")
+    logger.info(f"   - Concurrency: {MIN_CONCURRENCY}-{MAX_CONCURRENCY} (adaptive)")
+    logger.info(f"   - API Keys: {len(API_KEYS)}")
+
+    # Load input data
+    all_cases = load_json_file(input_file, [], logger)
+    if not all_cases:
+        logger.error("❌ No cases found in input file")
+        return
+
+    # Load tracking data
+    tracking = load_json_file(tracking_file, {}, logger)
+    
+    # Initialize file manager
+    file_manager = FileManager(logger)
+
+    # Categorize cases based on tracking status
+    failed_cases = []
+    new_cases = []
+    completed_cases = 0
+
+    for case in all_cases:
+        case_id = case.get("case_id", "")
+        if not case_id:
+            logger.warning("⚠️ Found case without case_id, skipping")
+            continue
+            
+        status = tracking.get(case_id, {}).get("status", "")
+        decision = tracking.get(case_id, {}).get("decision", "")
+        
+        if status == "success" and decision in ["KEEP", "REMOVE"]:
+            completed_cases += 1
+        elif status == "fail":
+            failed_cases.append(case)
+        else:
+            new_cases.append(case)
+
+    # Prioritize failed cases, then new cases
+    cases_to_process = failed_cases + new_cases
+    total_cases = len(all_cases)
+    to_process_count = len(cases_to_process)
+
+    # Log case breakdown
+    logger.info("📊 Case Status Breakdown:")
+    logger.info(f"   Total cases: {total_cases}")
+    logger.info(f"   ✅ Completed: {completed_cases}")
+    logger.info(f"   ❌ Failed (to retry): {len(failed_cases)}")
+    logger.info(f"   🆕 New cases: {len(new_cases)}")
+    logger.info(f"   📋 To process: {to_process_count}")
+
+    if to_process_count == 0:
+        logger.info("✅ All cases already processed!")
+        print_tracking_summary(tracking, logger)
+        return
+
+    # Initialize processing components
+    api_manager = APIKeyManager(API_KEYS, logger)
+    total_start_time = time.perf_counter()
+    
+    # Adaptive concurrency control
+    current_concurrency = MIN_CONCURRENCY
+    processed_cases = 0
+    batch_index = 0
+
+    async with aiohttp.ClientSession(
+        connector=aiohttp.TCPConnector(limit=MAX_CONCURRENCY * 2),
+        timeout=aiohttp.ClientTimeout(total=120)
+    ) as session:
+        
+        with tqdm(total=to_process_count, desc="Verifying cases", unit="case") as pbar:
+            
+            while processed_cases < to_process_count:
+                batch_start_idx = processed_cases
+                concurrent_batches = []
+                batch_case_counts = []
+                
+                # Create concurrent batches
+                for _ in range(current_concurrency):
+                    if batch_start_idx >= to_process_count:
+                        break
+                    
+                    batch_end_idx = min(batch_start_idx + BATCH_MAX_ITEMS, to_process_count)
+                    batch = cases_to_process[batch_start_idx:batch_end_idx]
+                    
+                    # Check if batch is too large (character-wise)
+                    batch_json = json.dumps(batch, ensure_ascii=False)
+                    if len(batch_json) > BATCH_MAX_CHARS and len(batch) > 1:
+                        logger.info(f"📦 Splitting oversized batch ({len(batch_json)} chars)")
+                        for individual_case in batch:
+                            concurrent_batches.append([individual_case])
+                            batch_case_counts.append(1)
+                    else:
+                        concurrent_batches.append(batch)
+                        batch_case_counts.append(len(batch))
+                    
+                    batch_start_idx = batch_end_idx
+
+                if not concurrent_batches:
+                    break
+
+                total_batch_cases = sum(batch_case_counts)
+                logger.info(f"🔥 Starting round {batch_index + 1}: {len(concurrent_batches)} batches, {total_batch_cases} cases")
+
+                # Process batches concurrently
+                round_start_time = time.perf_counter()
+                batch_tasks = []
+                
+                for i, batch in enumerate(concurrent_batches):
+                    if i > 0:
+                        await asyncio.sleep(RATE_LIMIT_DELAY)
+                    
+                    task = asyncio.create_task(
+                        process_verification_batch(session, batch, file_manager, output_file, tracking_file, api_manager, logger)
+                    )
+                    batch_tasks.append(task)
+
+                # Wait for all batches to complete
+                batch_durations = await asyncio.gather(*batch_tasks, return_exceptions=True)
+                
+                round_end_time = time.perf_counter()
+                round_duration = round_end_time - round_start_time
+
+                # Update progress
+                processed_cases += total_batch_cases
+                pbar.update(total_batch_cases)
+                batch_index += 1
+
+                # Load updated tracking for statistics
+                current_tracking = load_json_file(tracking_file, {}, logger)
+                keep_count = sum(1 for v in current_tracking.values() if v.get("decision") == "KEEP")
+                remove_count = sum(1 for v in current_tracking.values() if v.get("decision") == "REMOVE")
+                fail_count = sum(1 for v in current_tracking.values() if v.get("status") == "fail")
+
+                logger.info(f"Round {batch_index} completed in {round_duration:.2f}s")
+                logger.info(f"Progress: {processed_cases}/{to_process_count} processed, {keep_count} kept, {remove_count} removed, {fail_count} failed")
+
+                # Adaptive concurrency adjustment
+                valid_durations = [d for d in batch_durations if isinstance(d, (int, float))]
+                if valid_durations:
+                    avg_batch_duration = sum(valid_durations) / len(valid_durations)
+                    
+                    if avg_batch_duration < TARGET_FAST and current_concurrency < MAX_CONCURRENCY:
+                        current_concurrency += 1
+                        logger.info(f"Increasing concurrency -> {current_concurrency}")
+                    elif avg_batch_duration > TARGET_SLOW and current_concurrency > MIN_CONCURRENCY:
+                        current_concurrency -= 1
+                        logger.info(f"Decreasing concurrency -> {current_concurrency}")
+
+                # Small delay between rounds
+                if processed_cases < to_process_count:
+                    await asyncio.sleep(RATE_LIMIT_DELAY)
+
+    # Final statistics
+    total_end_time = time.perf_counter()
+    total_duration = total_end_time - total_start_time
+
+    # Load final tracking data
+    final_tracking = load_json_file(tracking_file, {}, logger)
+    final_keep = sum(1 for v in final_tracking.values() if v.get("decision") == "KEEP")
+    final_remove = sum(1 for v in final_tracking.values() if v.get("decision") == "REMOVE")
+    final_fail = sum(1 for v in final_tracking.values() if v.get("status") == "fail")
+    final_completed = final_keep + final_remove
+
+    # Load final output data for verification count
+    final_output = load_json_file(output_file, [], logger)
+    actual_kept_count = len(final_output)
+
+    keep_rate = (final_keep / total_cases * 100) if total_cases > 0 else 0
+    completion_rate = (final_completed / total_cases * 100) if total_cases > 0 else 0
+
+    logger.info("\nFinal Verification Results:")
+    logger.info(f"   Total input cases: {total_cases}")
+    logger.info(f"   Cases processed this run: {to_process_count}")
+    logger.info(f"   Total kept: {final_keep} ({keep_rate:.1f}%)")
+    logger.info(f"   Total removed: {final_remove}")
+    logger.info(f"   Total failed: {final_fail}")
+    logger.info(f"   Total completed: {final_completed} ({completion_rate:.1f}%)")
+    logger.info(f"   Cases in output file: {actual_kept_count}")
+    logger.info(f"   Total pipeline time: {total_duration:.2f} seconds")
+    
+    if to_process_count > 0:
+        avg_time_per_case = total_duration / to_process_count
+        logger.info(f"   Average time per case: {avg_time_per_case:.2f} seconds")
+
+    # Print detailed tracking summary
+    print_tracking_summary(final_tracking, logger)
+    
+    # Print API key performance
+    api_manager.print_stats()
+
+    # Quality assessment
+    if completion_rate >= 95:
+        logger.info("Excellent! Over 95% of cases processed successfully")
+    elif completion_rate >= 90:
+        logger.info("Good! Over 90% of cases processed")
+    elif completion_rate >= 80:
+        logger.info(f"Acceptable, but {100 - completion_rate:.1f}% of cases still need attention")
+    else:
+        logger.warning("Many cases failed - please check API keys and input data quality")
+
+    # Verification-specific assessment
+    if final_keep > 0:
+        quality_rate = (final_keep / (final_keep + final_remove) * 100) if (final_keep + final_remove) > 0 else 0
+        logger.info(f"Verification Quality: {quality_rate:.1f}% of processed cases were kept")
+    
+    logger.info("Verification pipeline completed successfully!")
+
+# ---------- GRACEFUL SHUTDOWN HANDLER ----------
+async def graceful_shutdown(output_file, tracking_file, logger):
+    """Handle graceful shutdown and save current state"""
+    logger.info("Graceful shutdown initiated...")
+    
+    try:
+        results = load_json_file(output_file, [], logger)
+        tracking = load_json_file(tracking_file, {}, logger)
+        
+        save_json_file(output_file, results, logger)
+        save_json_file(tracking_file, tracking, logger)
+        
+        logger.info("Current state saved successfully")
+        print_tracking_summary(tracking, logger)
+        
+    except Exception as e:
+        logger.error(f"Error during graceful shutdown: {e}")
+
+# ---------- MAIN EXECUTION ----------
 if __name__ == "__main__":
-    asyncio.run(main())
+    # Validate mode
+    if MODE not in ["civil", "criminal"]:
+        print("Invalid MODE. Must be 'civil' or 'criminal'")
+        exit(1)
+
+    try:
+        asyncio.run(verify_cases(MODE))
+        
+    except KeyboardInterrupt:
+        logger = setup_logging(LOG_FILES[MODE])
+        logger.info("Processing interrupted by user")
+        asyncio.run(graceful_shutdown(OUTPUT_FILES[MODE], TRACKING_FILES[MODE], logger))
+        
+    except Exception as e:
+        logger = setup_logging(LOG_FILES[MODE])
+        logger.error(f"Unexpected error: {e}")
+        logger.debug(traceback.format_exc())
+        asyncio.run(graceful_shutdown(OUTPUT_FILES[MODE], TRACKING_FILES[MODE], logger))
