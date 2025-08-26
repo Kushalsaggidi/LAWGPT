@@ -12,7 +12,7 @@ import traceback
 from asyncio import Lock
 
 # ---------- CONFIG ----------
-MODE = "civil"  # "civil" or "criminal"
+MODE = "criminal"  # "civil" or "criminal"
 
 INPUT_FILES = {
     "civil": Path(r"C:\Users\Kushal\Desktop\new\Data_Polish\polish_civil.json"),

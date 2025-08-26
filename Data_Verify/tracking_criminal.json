@@ -104,18 +104,6 @@
     "decision": "KEEP",
     "processed_at": 1756184083.7695785
   },
-  "HBHC010001112024_1_2024-01-04.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Duplicate case with HBHC010001112024_1_2024-01-04.json.",
-    "processed_at": 1756184083.7685804
-  },
-  "HBHC010001152024_1_2024-03-21.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment is missing, and the court reasoning only describes the arguments and the relief sought, not the court's decision. This prevents validation of reasoning-judgment consistency and overall case logic.",
-    "processed_at": 1756184083.7695785
-  },
   "HBHC010001482024_1_2024-01-04.json": {
     "status": "success",
     "decision": "KEEP",
@@ -125,18 +113,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184084.1310532
-  },
-  "HBHC010001582024_1_2024-02-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning does not address the legal question asked.",
-    "processed_at": 1756184084.1320965
-  },
-  "HBHC010001812024_1_2024-01-04.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning does not address the legal question asked.",
-    "processed_at": 1756184084.1320965
   },
   "HBHC010002892024_1_2024-01-30.json": {
     "status": "success",
@@ -171,12 +147,6 @@
   "HBHC010000722020_1_2024-01-30.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184086.0868003
-  },
-  "HBHC010000732020_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The decision to dispose of the case and grant liberty to re-approach is inconsistent with the reasoning that the petitioners had taken back the file and no alternative arrangements were made, which would typically warrant a dismissal or withdrawal of the petition rather than a conditional disposal.]",
     "processed_at": 1756184086.0868003
   },
   "HBHC010000942024_1_2024-02-02.json": {
@@ -414,12 +384,6 @@
     "decision": "KEEP",
     "processed_at": 1756184092.8811986
   },
-  "HBHC010002392024_1_2024-02-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Metadata accuracy - The cited law \"Article 226 of the Constitution of India; Section 151 CPC; Section 154 (3) of Cr.P.C; Section 200 of Cr.P.C; Indian Penal Code (IPC) Sections 448, 427, 506.\" includes Section 151 CPC, which relates to arrest without warrant, and is not directly relevant to the decision of directing the registration of a complaint or filing a private complaint. The core of the case revolves around Cr.P.C. sections related to complaint registration and private complaints, and the Constitution's writ jurisdiction.",
-    "processed_at": 1756184092.8811986
-  },
   "HBHC010002952024_1_2024-01-12.json": {
     "status": "success",
     "decision": "KEEP",
@@ -464,12 +428,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184094.7910767
-  },
-  "HBHC010005672021_1_2024-08-28.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment and court reasoning are incomplete and do not provide a clear decision or sufficient justification for one.",
-    "processed_at": 1756184094.7920887
   },
   "HBHC010004142024_1_2024-01-23.json": {
     "status": "success",
@@ -540,12 +498,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184097.0335321
-  },
-  "HBHC010006882010_1_2024-06-24.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court reasoning does not provide a clear decision on whether the demand and acceptance of a bribe were proven, and the final judgment is missing, making it impossible to assess consistency.",
-    "processed_at": 1756184097.0345318
   },
   "HBHC010006922024_1_2024-01-09.json": {
     "status": "success",
@@ -632,12 +584,6 @@
     "decision": "KEEP",
     "processed_at": 1756184099.3910885
   },
-  "HBHC010007212022_1_2024-05-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment is incomplete and does not state the final decision.",
-    "processed_at": 1756184099.3910885
-  },
   "HBHC010007212024_1_2024-01-08.json": {
     "status": "success",
     "decision": "KEEP",
@@ -658,12 +604,6 @@
     "decision": "KEEP",
     "processed_at": 1756184099.7610016
   },
-  "HBHC010007412024_1_2024-01-08.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Petitioner withdrew the petition with liberty to challenge the charge sheet, which means the High Court did not directly rule on quashing the FIR.",
-    "processed_at": 1756184099.7610016
-  },
   "HBHC010007582024_1_2024-01-08.json": {
     "status": "success",
     "decision": "KEEP",
@@ -679,30 +619,6 @@
     "decision": "KEEP",
     "processed_at": 1756184101.645622
   },
-  "HBHC010008542024_1_2024-01-09.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment (directions regarding the closure report) does not directly answer the question about ordering the registration of a crime.",
-    "processed_at": 1756184101.6466205
-  },
-  "HBHC010008612024_1_2024-04-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment (directions regarding appearance before the IO) does not directly answer the question about granting an extension.",
-    "processed_at": 1756184101.6466205
-  },
-  "HBHC010008692018_1_2024-08-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment (dismissal as withdrawn) does not directly answer the question about granting anticipatory bail.",
-    "processed_at": 1756184101.647619
-  },
-  "HBHC010008692024_1_2024-01-09.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment (directions to cooperate and not take coercive steps) does not directly answer the question about quashing the FIR.",
-    "processed_at": 1756184101.647619
-  },
   "HBHC010007662024_1_2024-01-09.json": {
     "status": "success",
     "decision": "KEEP",
@@ -711,12 +627,6 @@
   "HBHC010007722021_1_2024-07-02.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184101.7140927
-  },
-  "HBHC010007772019_1_2024-06-14.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning does not address the legal question of suspension.",
     "processed_at": 1756184101.7140927
   },
   "HBHC010007812019_1_2024-06-14.json": {
@@ -818,12 +728,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184105.2802975
-  },
-  "HBHC010009722024_1_2025-01-07.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The case is an adjournment of proceedings and does not answer a specific legal question, nor does the analysis provide a substantive legal outcome.",
-    "processed_at": 1756184105.2808113
   },
   "HBHC010009932024_1_2024-01-11.json": {
     "status": "success",
@@ -1045,12 +949,6 @@
     "decision": "KEEP",
     "processed_at": 1756184121.5060015
   },
-  "HBHC010012682024_1_2024-04-08.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The analysis does not provide a clear decision or outcome for the legal question asked. It states that the court heard arguments and the final decision is pending or not fully detailed.]",
-    "processed_at": 1756184121.5070155
-  },
   "HBHC010012742024_1_2024-01-11.json": {
     "status": "success",
     "decision": "KEEP",
@@ -1096,12 +994,6 @@
     "decision": "KEEP",
     "processed_at": 1756184124.3758318
   },
-  "HBHC010003962024_1_2024-01-04.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court did not quash the FIR, but directed compliance with procedural safeguards, which is different from answering whether the proceedings were quashed.",
-    "processed_at": 1756184124.3758318
-  },
   "HBHC010004562019_1_2024-02-05.json": {
     "status": "success",
     "decision": "KEEP",
@@ -1125,12 +1017,6 @@
   "HBHC010012922024_1_2024-10-29.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184130.6631155
-  },
-  "HBHC010013052019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis is circular. The court's reasoning for dismissing the petition is that the cause for seeking an extension no longer survived, which is a logical outcome but doesn't explain *why* the initial refusal to extend time was incorrect or if the petitioner's request for quashing the refusal was validly addressed. The question asks if the order refusing extension was quashed, and the answer implies it wasn't, but the reasoning is insufficient.",
     "processed_at": 1756184130.6631155
   },
   "HBHC010008862024_1_2024-03-19.json": {
@@ -1163,24 +1049,6 @@
     "decision": "KEEP",
     "processed_at": 1756184132.851453
   },
-  "HBHC010004612024_1_2024-01-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The legal question asks about quashing proceedings and dispensing with personal appearance, but the judgment only addresses dispensing with personal appearance, not the quashing of proceedings.]",
-    "processed_at": 1756184132.8524551
-  },
-  "HBHC010004872024_1_2024-01-09.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment states that quashing DV proceedings under Section 482 Cr.P.C. is not maintainable, and the proper remedy is an appeal. However, the court then proceeds to dispense with the petitioner's appearance, which is a relief related to the ongoing proceedings that were deemed not quashable under the cited section. This creates an inconsistency.]",
-    "processed_at": 1756184132.8524551
-  },
-  "HBHC010005012024_1_2024-04-29.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The legal question asks if the police action is illegal, arbitrary, unjust, and unconstitutional. The analysis provides a summary of facts and reasoning leading to the closure of the petition due to information provided, but it does not explicitly answer whether the police action met the criteria of illegality, arbitrariness, injustice, or unconstitutionality.]",
-    "processed_at": 1756184132.8534555
-  },
   "HBHC010004742024_1_2024-09-02.json": {
     "status": "success",
     "decision": "KEEP",
@@ -1194,12 +1062,6 @@
   "HBHC010008672024_1_2024-01-09.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184135.8432362
-  },
-  "HBHC010008742024_1_2024-03-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The provided judgment does not contain a final decision on the legal issue.",
     "processed_at": 1756184135.8432362
   },
   "HBHC010008892024_1_2024-01-09.json": {
@@ -1276,12 +1138,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184138.0487347
-  },
-  "HBHC010017282019_1_2024-09-13.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Petitioner failed to prosecute the case.",
-    "processed_at": 1756184138.0492764
   },
   "HBHC010017282024_1_2024-01-11.json": {
     "status": "success",
@@ -1422,18 +1278,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184147.9360037
-  },
-  "HBHC010013252024_1_2024-02-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment is not explicitly stated, only that the court was considering a directive.",
-    "processed_at": 1756184147.937004
-  },
-  "HBHC010013342016_1_2024-10-01.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The reasoning is too brief and does not explain why the case was dismissed.",
-    "processed_at": 1756184147.9443126
   },
   "HBHC010013352024_1_2024-02-06.json": {
     "status": "success",
@@ -1735,12 +1579,6 @@
     "decision": "KEEP",
     "processed_at": 1756184157.0698524
   },
-  "HBHC010019992024_1_2024-01-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court directed the police to furnish a closure report, which implies the investigation is concluded, but the legal issue and question are about directing the police to register and investigate a complaint, and the analysis/reasoning doesn't directly address the core of the question, making the response disconnected from the stated query.",
-    "processed_at": 1756184157.0858803
-  },
   "HBHC010018752024_1_2024-01-11.json": {
     "status": "success",
     "decision": "KEEP",
@@ -1779,12 +1617,6 @@
   "HBHC010020052024_1_2024-01-12.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184159.0172293
-  },
-  "HBHC010020222024_1_2024-02-06.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The reasoning and decision do not directly answer whether the criminal proceedings were quashed. Instead, they describe the court's directive regarding the compromise and the non-compoundable nature of the offenses, which is incomplete as an answer to the posed question.",
     "processed_at": 1756184159.0172293
   },
   "HBHC010020242024_1_2024-01-12.json": {
@@ -1932,12 +1764,6 @@
     "decision": "KEEP",
     "processed_at": 1756184163.9242678
   },
-  "HBHC010022872024_1_2024-09-10.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning does not fully address the legal question; the judgment indicates records are to be called for, implying a decision on quashing is not yet made by the court.",
-    "processed_at": 1756184163.928527
-  },
   "HBHC010023032024_1_2024-01-22.json": {
     "status": "success",
     "decision": "KEEP",
@@ -1951,12 +1777,6 @@
   "HBHC010023362024_1_2024-01-22.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184164.080579
-  },
-  "HBHC010023372024_1_2024-01-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Missing or nonsensical critical information",
     "processed_at": 1756184164.080579
   },
   "HBHC010023412024_1_2024-01-22.json": {
@@ -2094,12 +1914,6 @@
     "decision": "KEEP",
     "processed_at": 1756184168.6518638
   },
-  "HBHC010014062024_1_2024-01-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "HBHC010014062024_1_2024-01-12.json - The analysis does not answer whether the High Court quashed proceedings, but rather states the case was withdrawn.",
-    "processed_at": 1756184168.9303553
-  },
   "HBHC010014132011_1_2024-01-24.json": {
     "status": "success",
     "decision": "KEEP",
@@ -2139,12 +1953,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184170.8720732
-  },
-  "HBHC010015802015_1_2024-01-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment is not provided, making it impossible to validate the case.",
-    "processed_at": 1756184170.8750596
   },
   "HBHC010023952018_1_2024-07-31.json": {
     "status": "success",
@@ -2189,12 +1997,6 @@
   "HBHC010015952019_1_2024-01-25.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184171.210036
-  },
-  "HBHC010015992015_1_2024-11-28.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court reasoned that the petition was dismissed for non-prosecution, meaning the merits of a fair investigation were not addressed, contradicting the question about ordering a fair investigation.",
     "processed_at": 1756184171.210036
   },
   "HBHC010019222024_1_2024-01-12.json": {
@@ -2352,28 +2154,10 @@
     "decision": "KEEP",
     "processed_at": 1756184178.1018932
   },
-  "HBHC010026192019_1_2024-01-11.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment states the petition was disposed of due to delay and lack of information, but the decision is stated as 'criminal proceedings were not quashed'. This is contradictory. The reasoning also states the court 'decided not to continue pending the petition' which implies dismissal or disposal, not a decision on the merits of quashing.]",
-    "processed_at": 1756184178.102894
-  },
   "HBHC010026122024_1_2024-01-25.json": {
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184178.102894
-  },
-  "HBHC010026152014_1_2024-10-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The analysis and reasoning describe the arguments and the filing of an appeal against conviction but do not state the court's decision or judgment on the appeal, making the case incomplete for validation.]",
-    "processed_at": 1756184178.103894
-  },
-  "HBHC010026272015_1_2024-01-08.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The case summary and reasoning describe the filing of a writ petition to quash an FIR and private complaint, but the judgment section only states that the petition was filed, not the court's decision or outcome of the petition.]",
-    "processed_at": 1756184178.103894
   },
   "HBHC010028612024_1_2024-01-23.json": {
     "status": "success",
@@ -2394,12 +2178,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184178.367181
-  },
-  "HBHC010015912019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The 'decision' in the court reasoning section states the petition was dismissed as infructuous, but the 'judgment' states the petition was dismissed as infructuous, which is consistent. However, the facts and legal issue do not clearly lead to the dismiss as infructuous outcome. The case summary mentions a matrimonial dispute but does not provide enough details to understand why the proceedings would be quashed or become infructuous. Without knowing the nature of M.C.No. 175 of 2010 and the specific grounds for quashing, it's impossible to validate the outcome.",
-    "processed_at": 1756184178.3681805
   },
   "HBHC010028332018_1_2024-04-19.json": {
     "status": "success",
@@ -2521,12 +2299,6 @@
     "decision": "KEEP",
     "processed_at": 1756184182.6187892
   },
-  "HBHC010024562013_1_2024-01-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The reasoning and judgment do not clearly state the final outcome of the criminal revision against acquittal, leaving the decision incomplete.",
-    "processed_at": 1756184182.6198058
-  },
   "HBHC010028722024_1_2024-01-23.json": {
     "status": "success",
     "decision": "KEEP",
@@ -2597,12 +2369,6 @@
     "decision": "KEEP",
     "processed_at": 1756184184.955699
   },
-  "HBHC010021672024_1_2024-01-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The reasoning and judgment do not directly address whether the FIR and proceedings under Section 505(1)(c) IPC were quashed, but rather state the petition became infructuous.",
-    "processed_at": 1756184184.9566965
-  },
   "HBHC010024862024_1_2024-10-22.json": {
     "status": "success",
     "decision": "KEEP",
@@ -2643,12 +2409,6 @@
     "decision": "KEEP",
     "processed_at": 1756184189.4145489
   },
-  "HBHC010027422024_1_2024-01-23.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The facts and issues are identical to the previous case, suggesting a data duplication error.",
-    "processed_at": 1756184189.416567
-  },
   "HBHC010027372024_1_2024-02-16.json": {
     "status": "success",
     "decision": "KEEP",
@@ -2673,12 +2433,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184191.2489264
-  },
-  "HBHC010018172010_1_2024-03-20.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court reasoning and decision are vague and do not provide a clear outcome regarding the legal question about the deposit of arrears.",
-    "processed_at": 1756184191.2499309
   },
   "HBHC010018022015_1_2024-07-10.json": {
     "status": "success",
@@ -2840,18 +2594,6 @@
     "decision": "KEEP",
     "processed_at": 1756184201.7885635
   },
-  "HBHC010030972024_1_2024-01-24.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The case summary and reasoning do not provide a clear decision or outcome of the legal question.",
-    "processed_at": 1756184201.7885635
-  },
-  "HBHC010031002024_1_2024-08-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court reasoning and decision do not clearly state what the High Court decided regarding the quashing of proceedings, only that arguments were considered.",
-    "processed_at": 1756184201.789615
-  },
   "HBHC010030922024_1_2024-01-24.json": {
     "status": "success",
     "decision": "KEEP",
@@ -2907,12 +2649,6 @@
     "decision": "KEEP",
     "processed_at": 1756184203.7772076
   },
-  "HBHC010032522015_1_2024-04-15.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "HBHC010032522015_1_2024-04-15.json - The judgment is not definitively stated, making it impossible to verify if the conviction was upheld or not.",
-    "processed_at": 1756184204.1834
-  },
   "HBHC010032622024_1_2024-02-06.json": {
     "status": "success",
     "decision": "KEEP",
@@ -2927,12 +2663,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184204.1863961
-  },
-  "HBHC010033332024_1_2024-03-07.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "HBHC010033332024_1_2024-03-07.json - The judgment details on whether the FIR was quashed are not fully provided.",
-    "processed_at": 1756184204.187394
   },
   "HBHC010032282024_1_2024-01-25.json": {
     "status": "success",
@@ -2979,12 +2709,6 @@
     "decision": "KEEP",
     "processed_at": 1756184206.3123882
   },
-  "HBHC010033482024_1_2024-06-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court's reasoning and decision do not clearly state *why* the proceedings were quashed, which is a crucial element for validating the case's legal soundness. It mentions needing to examine applicability but then jumps to quashing without a stated conclusion on that examination.]",
-    "processed_at": 1756184206.3123882
-  },
   "HBHC010024212024_1_2024-01-12.json": {
     "status": "success",
     "decision": "KEEP",
@@ -3025,12 +2749,6 @@
     "decision": "KEEP",
     "processed_at": 1756184208.3488855
   },
-  "HBHC010022492018_1_2024-09-11.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Law application accuracy - Section 37 B(4) of Cr.P.C. does not exist.",
-    "processed_at": 1756184208.3498895
-  },
   "HBHC010022572024_1_2024-02-13.json": {
     "status": "success",
     "decision": "KEEP",
@@ -3040,12 +2758,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184208.7508984
-  },
-  "HBHC010023262024_1_2024-01-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The decision states the bail petition is dismissed with an observation on default bail, but the summary says the criminal petition is disposed of with this observation. This creates an ambiguity regarding the final outcome.",
-    "processed_at": 1756184208.7518945
   },
   "HBHC010023302024_1_2024-01-30.json": {
     "status": "success",
@@ -3131,12 +2843,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184212.064931
-  },
-  "HBHC010031282024_1_2024-04-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The analysis does not provide a definitive decision on whether the criminal proceedings were quashed, which is the core question.]",
-    "processed_at": 1756184212.4383874
   },
   "HBHC010031472024_1_2024-01-24.json": {
     "status": "success",
@@ -3252,12 +2958,6 @@
     "decision": "KEEP",
     "processed_at": 1756184217.1675866
   },
-  "HBHC010029342018_1_2025-01-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Law application accuracy - Law applied is not specified for a criminal case where a decision was made.",
-    "processed_at": 1756184217.1675866
-  },
   "HBHC010029472024_1_2024-01-24.json": {
     "status": "success",
     "decision": "KEEP",
@@ -3297,24 +2997,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184218.071483
-  },
-  "HBHC010034812016_1_2024-02-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment provided in the case_summary is a verbatim copy of the question asked, not a resolution.]",
-    "processed_at": 1756184218.0724754
-  },
-  "HBHC010034872014_1_2024-02-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court_reasoning's decision is a restatement of the legal issue, not a court decision. The judgment also doesn't align with the reasoning provided.]",
-    "processed_at": 1756184218.0804803
-  },
-  "HBHC010034992016_1_2024-11-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment is a partial restatement of the legal issue, not a decision on whether the appeal was allowed or dismissed.]",
-    "processed_at": 1756184218.0928917
   },
   "HBHC010035012024_1_2024-01-25.json": {
     "status": "success",
@@ -3406,12 +3088,6 @@
     "decision": "KEEP",
     "processed_at": 1756184222.1761134
   },
-  "HBHC010030122015_1_2024-03-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment is simply a restatement of the appeal's purpose, not a decision by the court on the conviction.",
-    "processed_at": 1756184222.1771328
-  },
   "HBHC010030122024_1_2024-01-30.json": {
     "status": "success",
     "decision": "KEEP",
@@ -3457,18 +3133,6 @@
     "decision": "KEEP",
     "processed_at": 1756184223.0877864
   },
-  "HBHC010030382024_1_2024-01-23.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning does not directly address whether the FIR proceedings were quashed; it discusses directions for investigation.",
-    "processed_at": 1756184223.0888083
-  },
-  "HBHC010030412024_1_2024-01-24.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The question asks about anticipatory bail, but the judgment and reasoning describe directions related to Section 41-A and investigation cooperation, not the grant or denial of anticipatory bail itself.",
-    "processed_at": 1756184223.089809
-  },
   "HBHC010031652016_1_2024-04-15.json": {
     "status": "success",
     "decision": "KEEP",
@@ -3508,12 +3172,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184226.6715987
-  },
-  "HBHC010032552024_1_2024-03-11.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment section does not state the High Court's final decision, making it impossible to verify consistency with the reasoning or answer the question.",
-    "processed_at": 1756184226.6725922
   },
   "HBHC010032682019_1_2024-01-23.json": {
     "status": "success",
@@ -3570,39 +3228,15 @@
     "decision": "KEEP",
     "processed_at": 1756184229.028514
   },
-  "HBHC010035552024_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The analysis states the court directed adherence to Section 41-A Cr.P.C. and Arnesh Kumar guidelines, and to consider petitioner's innocence, but the judgment section states the criminal petition was disposed of accordingly, without specifying if the proceedings were quashed or not, contradicting the question asked about quashing proceedings.]",
-    "processed_at": 1756184229.029511
-  },
   "HBHC010035812024_1_2024-02-27.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184229.2086723
-  },
-  "HBHC010035822024_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment does not explicitly state whether the chargesheet was quashed, failing to directly answer the question.]",
     "processed_at": 1756184229.2086723
   },
   "HBHC010035862024_1_2024-01-25.json": {
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184229.2096703
-  },
-  "HBHC010035882024_1_2024-01-29.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court directed compliance with Section 41-A Cr.P.C. and Anr.esh Kumar guidelines, but the question asked about anticipatory bail, and the analysis did not directly address whether it was granted or refused.]",
-    "processed_at": 1756184229.2106721
-  },
-  "HBHC010035912024_1_2024-01-29.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court permitted withdrawal of the petition with liberty to file a fresh one, which does not answer the question of what was decided regarding interim custody of the vehicle.]",
-    "processed_at": 1756184229.2106721
   },
   "HBHC010036642024_1_2024-02-01.json": {
     "status": "success",
@@ -3643,12 +3277,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184231.3822176
-  },
-  "HBHC010036572024_1_2024-02-21.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court's reasoning is to provide the closure report to enable further remedies, but the judgment is to furnish a copy of the closure report. This does not directly answer the question about the registration of an FIR.",
-    "processed_at": 1756184231.383209
   },
   "HBHC010036592024_1_2024-10-11.json": {
     "status": "success",
@@ -3745,12 +3373,6 @@
     "decision": "KEEP",
     "processed_at": 1756184234.0645523
   },
-  "HBHC010030442015_1_2024-07-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment section describes the appellant's arguments rather than the court's decision.",
-    "processed_at": 1756184234.0655482
-  },
   "HBHC010033922024_1_2024-01-25.json": {
     "status": "success",
     "decision": "KEEP",
@@ -3774,12 +3396,6 @@
   "HBHC010031052024_1_2024-01-24.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184234.2982397
-  },
-  "HBHC010031132024_1_2024-02-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The reasoning focuses on the quantity of seized ganja and custody period, but the judgment states bail was granted considering these factors without linking them to the specific legal principles for granting bail under the NDPS Act. The legal issue is about grant of bail, and the court reasoning should explicitly explain why bail was granted under relevant provisions of CrPC and any specific provisions or exceptions of the NDPS Act that were considered. The current reasoning is descriptive rather than analytical in applying the law to the facts for the grant of bail.]",
     "processed_at": 1756184234.2982397
   },
   "HBHC010037322024_1_2024-01-29.json": {
@@ -3847,12 +3463,6 @@
     "decision": "KEEP",
     "processed_at": 1756184236.9146094
   },
-  "HBHC010034382024_1_2024-03-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The analysis does not fully answer the legal question about the High Court's decision regarding passport refusal, as the judgment and reasoning are incomplete.]",
-    "processed_at": 1756184236.915606
-  },
   "HBHC010034502024_1_2024-11-08.json": {
     "status": "success",
     "decision": "KEEP",
@@ -3888,28 +3498,10 @@
     "decision": "KEEP",
     "processed_at": 1756184238.992425
   },
-  "HBHC010037702011_1_2024-08-09.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[Truncated judgment makes it impossible to verify if conviction was upheld.]",
-    "processed_at": 1756184238.993768
-  },
-  "HBHC010039472024_1_2024-01-29.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court did not quash the FIR; it directed cooperation with the investigation.]",
-    "processed_at": 1756184238.994792
-  },
   "HBHC010039582024_1_2024-01-30.json": {
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184238.994792
-  },
-  "HBHC010039592024_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court did not quash the proceedings.]",
-    "processed_at": 1756184238.9958203
   },
   "HBHC010039622024_1_2024-01-25.json": {
     "status": "success",
@@ -3945,18 +3537,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184241.1099248
-  },
-  "HBHC010039892019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The case summary and reasoning do not state whether the criminal proceedings were ultimately quashed or not, making it impossible to confirm the judgment's consistency with the question.",
-    "processed_at": 1756184241.1099248
-  },
-  "HBHC010039942016_1_2024-11-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment section does not state the outcome of the appeal against the conviction for murder. It only states that the High Court reviewed the evidence.",
-    "processed_at": 1756184241.1109226
   },
   "HBHC010040182024_1_2024-01-30.json": {
     "status": "success",
@@ -4028,12 +3608,6 @@
     "decision": "KEEP",
     "processed_at": 1756184243.4667275
   },
-  "HBHC010040432024_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis mentions quashing the FIR in the judgment and decision, but the court's decision was not to quash the FIR but to direct the investigation to proceed.",
-    "processed_at": 1756184243.4667275
-  },
   "HBHC010040452024_1_2024-01-30.json": {
     "status": "success",
     "decision": "KEEP",
@@ -4069,28 +3643,10 @@
     "decision": "KEEP",
     "processed_at": 1756184244.395665
   },
-  "HBHC010040522024_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court did not issue a final decision in the provided summary, making it incomplete.]",
-    "processed_at": 1756184244.395665
-  },
   "HBHC010040582024_1_2024-02-09.json": {
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184244.3966665
-  },
-  "HBHC010040692022_1_2024-02-13.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The criminal petition was dismissed as infructuous because a charge sheet had already been filed, making the original petition for quashing proceedings unsustainable.]",
-    "processed_at": 1756184244.4302042
-  },
-  "HBHC010040752024_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court did not issue a final decision in the provided summary; it noted the arguments presented.]",
-    "processed_at": 1756184244.431207
   },
   "HBHC010040702024_1_2024-01-30.json": {
     "status": "success",
@@ -4222,12 +3778,6 @@
     "decision": "KEEP",
     "processed_at": 1756184249.2999535
   },
-  "HBHC010042122015_1_2024-09-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The final decision of the appeal is not provided, making it impossible to fully validate the case.]",
-    "processed_at": 1756184249.3009548
-  },
   "HBHC010042182017_1_2024-01-03.json": {
     "status": "success",
     "decision": "KEEP",
@@ -4273,12 +3823,6 @@
     "decision": "KEEP",
     "processed_at": 1756184251.817011
   },
-  "HBHC010043082024_1_2024-02-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The question asks about granting bail, but the analysis states the petition was dismissed as infructuous.]",
-    "processed_at": 1756184251.817011
-  },
   "HBHC010043122024_1_2024-01-30.json": {
     "status": "success",
     "decision": "KEEP",
@@ -4288,12 +3832,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184251.840759
-  },
-  "HBHC010043352024_1_2024-02-01.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The reasoning states the court found compelling reasons for recall, but the judgment sets aside the order and allows recall with conditions, which aligns.]",
-    "processed_at": 1756184251.8467646
   },
   "HBHC010042772024_1_2024-02-20.json": {
     "status": "success",
@@ -4390,12 +3928,6 @@
     "decision": "KEEP",
     "processed_at": 1756184265.6938221
   },
-  "HBHC010044292024_1_2024-12-18.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The provided law \"BNSS\" is too vague and does not clearly indicate which specific legal statute is being applied, making it impossible to verify the law application accuracy. The facts and legal issue also lack sufficient detail to fully assess the case's coherence.",
-    "processed_at": 1756184265.6938221
-  },
   "HBHC010043862024_1_2024-02-23.json": {
     "status": "success",
     "decision": "KEEP",
@@ -4431,12 +3963,6 @@
     "decision": "KEEP",
     "processed_at": 1756184267.8382497
   },
-  "HBHC010043702024_1_2024-01-31.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Judgment does not align with the analysis of the question asked. The question asks if the FIR and proceedings were quashed, but the judgment states they were directed to cooperate with the investigation.",
-    "processed_at": 1756184267.8382497
-  },
   "HBHC010043722007_1_2024-04-16.json": {
     "status": "success",
     "decision": "KEEP",
@@ -4456,12 +3982,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184268.2852066
-  },
-  "HBHC010044442024_1_2024-12-27.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not directly answer the question about the outcome of the appeal. The legal issue and judgment are present, but the reasoning does not explain *why* the appeal was allowed, leaving a critical gap.",
-    "processed_at": 1756184268.3078957
   },
   "HBHC010044632024_1_2024-01-31.json": {
     "status": "success",
@@ -4542,12 +4062,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184270.7038765
-  },
-  "HBHC010045812024_1_2024-01-31.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not definitively answer the legal question of whether a writ of mandamus was issued. The reasoning states the court was *considering* the petition, and the judgment reflects this ongoing consideration rather than a final decision.",
-    "processed_at": 1756184270.7048712
   },
   "HBHC010046232024_1_2024-02-01.json": {
     "status": "success",
@@ -4764,18 +4278,6 @@
     "decision": "KEEP",
     "processed_at": 1756184277.788332
   },
-  "HBHC010049622024_1_2024-02-01.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment states the proceedings were not quashed, but the question asks if they *were* ordered to be quashed. The analysis provides directions rather than a clear yes/no to the question.",
-    "processed_at": 1756184277.795329
-  },
-  "HBHC010049652024_1_2024-02-01.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment states the proceedings were not quashed, but the question asks if they *were* ordered to be quashed. The analysis provides directions rather than a clear yes/no to the question.",
-    "processed_at": 1756184277.8083286
-  },
   "HBHC010049952024_1_2024-02-01.json": {
     "status": "success",
     "decision": "KEEP",
@@ -4835,18 +4337,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184280.2680416
-  },
-  "HBHC010050082024_1_2024-02-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The reasoning does not definitively state the court's decision on quashing the FIR, only directing a consideration of jurisdiction.",
-    "processed_at": 1756184280.2853878
-  },
-  "HBHC010050232023_1_2024-11-06.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court reasoning describes the filing of the petition but omits the final decision on whether the proceedings were quashed.",
-    "processed_at": 1756184280.2923834
   },
   "HBHC010050242009_1_2024-03-12.json": {
     "status": "success",
@@ -5023,12 +4513,6 @@
     "decision": "KEEP",
     "processed_at": 1756184312.3806558
   },
-  "HBHC010052862024_1_2024-03-06.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The case summary is incomplete and the court's reasoning does not detail the decision or its basis. The judgment section only states what the court was asked to do, not what it decided.",
-    "processed_at": 1756184312.3806558
-  },
   "HBHC010053032024_1_2024-02-07.json": {
     "status": "success",
     "decision": "KEEP",
@@ -5084,27 +4568,9 @@
     "decision": "KEEP",
     "processed_at": 1756184315.8618116
   },
-  "HBHC010053692024_1_2024-02-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning does not address the legal issue of quashing proceedings.",
-    "processed_at": 1756184315.8618116
-  },
-  "HBHC010053702024_1_2024-02-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning is too vague and does not explain why the proceedings were dismissed as infructuous.",
-    "processed_at": 1756184315.8628042
-  },
   "HBHC010053722024_1_2024-02-02.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184315.8628042
-  },
-  "HBHC010053862024_1_2025-02-19.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Legal issue and reasoning do not align with the question asked regarding the High Court's decision on the petition.",
     "processed_at": 1756184315.8628042
   },
   "HBHC010053602023_1_2024-02-13.json": {
@@ -5141,12 +4607,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184316.579681
-  },
-  "HBHC010053882019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The reasoning does not clearly explain why the petition was dismissed as infructuous, making it difficult to assess the alignment with the legal question or the overall logic.",
-    "processed_at": 1756184316.5806816
   },
   "HBHC010054102008_1_2024-04-24.json": {
     "status": "success",
@@ -5378,12 +4838,6 @@
     "decision": "KEEP",
     "processed_at": 1756184323.4485655
   },
-  "HBHC010061642024_1_2024-02-08.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not answer whether the FIR and proceedings were quashed, only that an investigation was directed.",
-    "processed_at": 1756184323.4485655
-  },
   "HBHC010060632024_1_2024-03-13.json": {
     "status": "success",
     "decision": "KEEP",
@@ -5489,12 +4943,6 @@
     "decision": "KEEP",
     "processed_at": 1756184327.7836552
   },
-  "HBHC010063142024_1_2024-02-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The question in the second case (HBHC010063142024_1_2024-02-12.json) asks about FIR No. 102/2019, but the summary and reasoning mention FIR No. 102/2019 and then the \"Married Women's Property Act\" which is inconsistent with the first case's mention of the \"Muslim Community Protection of Right on Marriages Act\". There's a factual inconsistency regarding the specific law cited.",
-    "processed_at": 1756184327.7836552
-  },
   "HBHC010063012024_1_2024-02-12.json": {
     "status": "success",
     "decision": "KEEP",
@@ -5528,12 +4976,6 @@
   "HBHC010038462024_1_2024-01-30.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184327.978671
-  },
-  "HBHC010038502019_1_2024-01-11.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The legal issue raised is about quashing the order passed by the Principal Sessions Judge, but the reasoning and decision focus on the status of the trial court and the petitioner's liberty to approach the court again, without directly addressing whether the Principal Sessions Judge's order itself was to be quashed or not. The connection between the facts (no interim orders, unknown status) and the legal issue (quashing the order) is weak.",
     "processed_at": 1756184327.978671
   },
   "HBHC010033762024_1_2024-01-24.json": {
@@ -5581,12 +5023,6 @@
     "decision": "KEEP",
     "processed_at": 1756184330.2112908
   },
-  "HBHC010039272024_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[Metadata accuracy - The listed laws in metadata do not fully encompass the laws mentioned in the case facts and legal issue, specifically the Protection of Civil Rights Act is missing.]",
-    "processed_at": 1756184330.2112908
-  },
   "HBHC010044562024_1_2024-02-01.json": {
     "status": "success",
     "decision": "KEEP",
@@ -5601,18 +5037,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184330.4137456
-  },
-  "HBHC010045152024_1_2024-01-31.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment and court reasoning do not explicitly state what the High Court decided regarding the directions sought. It only states that the court is considering the petition.",
-    "processed_at": 1756184330.4150555
-  },
-  "HBHC010045162024_1_2024-02-01.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment and court reasoning do not explicitly state what the High Court decided regarding the directions sought. It only states that the court is considering the legality of the police's inaction.",
-    "processed_at": 1756184330.4150555
   },
   "HBHC010039232024_1_2024-01-30.json": {
     "status": "success",
@@ -5659,40 +5083,10 @@
     "decision": "KEEP",
     "processed_at": 1756184332.7945716
   },
-  "HBHC010046242024_1_2024-01-31.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court was \"considering\" the writ petition, and the judgment section states the court was \"considering\" it as well, rather than providing a conclusive decision on whether the direction was given.",
-    "processed_at": 1756184332.7958379
-  },
   "HBHC010039342018_1_2024-07-23.json": {
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184333.0622947
-  },
-  "HBHC010042582024_1_2024-03-18.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The legal issue is stated as \"Contempt of court for willful disobedience of a High Court order\", but the analysis and judgment only state that the case was closed with no costs. There is no explanation of *why* it was closed or if the disobedience was willful or not, thus not fully answering the \"what was the outcome\" question in relation to the alleged contempt.",
-    "processed_at": 1756184333.0632956
-  },
-  "HBHC010044522024_1_2024-01-31.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The question asks what the High Court decided regarding quashing the FIR. The analysis states the petitioner sought to quash, and the court directed them to appear and follow procedures. This is not a decision *on* quashing but rather a procedural direction. The outcome is not a clear yes/no or specific ruling on the quashing itself.",
-    "processed_at": 1756184333.0632956
-  },
-  "HBHC010044532024_1_2024-01-31.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The question asks what the High Court decided regarding quashing the FIR and stay of proceedings. The analysis states the court directed petitioners to appear and follow procedures. This is a procedural direction, not a decision on the merits of quashing or staying the proceedings.",
-    "processed_at": 1756184333.0632956
-  },
-  "HBHC010044542024_1_2024-01-31.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The question asks what the High Court decided regarding quashing a charge sheet and proceedings. The analysis states the petition was dismissed, referring factual disputes to the trial court. This correctly answers the question.",
-    "processed_at": 1756184333.0642958
   },
   "HBHC010046452024_1_2024-02-01.json": {
     "status": "success",
@@ -5728,12 +5122,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184335.107704
-  },
-  "HBHC010045302018_1_2024-08-08.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court_reasoning and judgment do not clearly explain how the trial court's observation about the complainant failing to prove presentation of cheques led to the decision to simply state the appeal is being considered. The reasoning lacks the application of law to the facts to support a conclusion.",
-    "processed_at": 1756184335.108711
   },
   "HBHC010045232024_1_2024-02-01.json": {
     "status": "success",
@@ -5915,12 +5303,6 @@
     "decision": "KEEP",
     "processed_at": 1756184343.1565952
   },
-  "HBHC010051982024_1_2024-02-16.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court's decision to dispose of the petition without directing FIR registration contradicts the petitioners' question about directing the police to register FIRs, as the analysis only mentions a preliminary inquiry finding the dispute to be civil. The legal reasoning doesn't clearly explain why, despite the petitioners' claims and the Lalitha Kumari guidelines, an FIR was not registered.",
-    "processed_at": 1756184343.1575952
-  },
   "HBHC010054592024_1_2024-02-05.json": {
     "status": "success",
     "decision": "KEEP",
@@ -5980,18 +5362,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184345.9712982
-  },
-  "HBHC010056372024_1_2024-02-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment does not directly answer the question of whether the police were directed to register an FIR and conduct an investigation. It only mentions a direction to provide a closure report.",
-    "processed_at": 1756184345.9712982
-  },
-  "HBHC010056342023_1_2024-03-28.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not provide a clear decision or conclusion regarding whether the criminal proceedings were quashed, only stating that the petitions were filed for that purpose and heard jointly.",
-    "processed_at": 1756184345.9720583
   },
   "HBHC010056422018_1_2024-06-26.json": {
     "status": "success",
@@ -6133,12 +5503,6 @@
     "decision": "KEEP",
     "processed_at": 1756184350.7800913
   },
-  "HBHC010063752010_1_2024-10-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Judgment does not fully detail the outcome of the appeal, preventing full validation of reasoning and consistency.",
-    "processed_at": 1756184350.7800913
-  },
   "HBHC010063752024_1_2024-02-22.json": {
     "status": "success",
     "decision": "KEEP",
@@ -6163,12 +5527,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184352.398399
-  },
-  "HBHC010064862015_1_2024-09-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court reasoning and decision do not definitively state whether bail was granted or dismissed, only that arguments were heard.",
-    "processed_at": 1756184352.3994
   },
   "HBHC010064862024_1_2024-03-04.json": {
     "status": "success",
@@ -6240,18 +5598,6 @@
     "decision": "KEEP",
     "processed_at": 1756184355.2111194
   },
-  "HBHC010065412024_1_2024-02-29.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court reasoning does not explain what the High Court decided, only that the case was filed. The decision listed is also identical to the legal issue.",
-    "processed_at": 1756184355.2121177
-  },
-  "HBHC010065432024_1_2024-05-03.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment listed is a description of what the petitioner sought, not what the court decided.",
-    "processed_at": 1756184355.2121177
-  },
   "HBHC010063852024_1_2024-02-14.json": {
     "status": "success",
     "decision": "KEEP",
@@ -6317,12 +5663,6 @@
     "decision": "KEEP",
     "processed_at": 1756184357.437581
   },
-  "HBHC010065892024_1_2024-07-11.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment contradicts the analysis of the legal question asked. The question asks if proceedings were quashed, but the judgment states the petition was withdrawn.]",
-    "processed_at": 1756184357.4379182
-  },
   "HBHC010065992024_1_2024-02-12.json": {
     "status": "success",
     "decision": "KEEP",
@@ -6368,12 +5708,6 @@
     "decision": "KEEP",
     "processed_at": 1756184358.2079837
   },
-  "HBHC010066692024_1_2024-02-20.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis states the petition was dismissed because a charge sheet had been filed, but the question asks if it *should be* quashed, implying an ongoing evaluation of merits rather than a procedural dismissal due to a later event. This misaligns the analysis with the question's intent.",
-    "processed_at": 1756184358.2079837
-  },
   "HBHC010066772024_1_2024-02-09.json": {
     "status": "success",
     "decision": "KEEP",
@@ -6403,18 +5737,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184360.3323376
-  },
-  "HBHC010068012024_1_2024-03-01.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment dismisses the petition for non-prosecution, which aligns with the reasoning of counsel's absence, but the metadata categorizes it as \"Bail\" which is inconsistent with the case's core issue of passport relaxation. The question asks about relaxation of passport condition, and the summary/analysis addresses this, but the metadata mismatch is significant.]",
-    "processed_at": 1756184360.3343365
-  },
-  "HBHC010068212024_1_2024-09-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment is truncated and the reasoning is speculative, making it impossible to validate whether the case was correctly handled.]",
-    "processed_at": 1756184360.335335
   },
   "HBHC010066912024_1_2024-08-19.json": {
     "status": "success",
@@ -6449,12 +5771,6 @@
   "HBHC010069652024_1_2024-02-12.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184362.2829056
-  },
-  "HBHC010069682011_1_2024-01-11.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The reasoning and decision do not fully address whether withdrawal is appropriate; it only states the High Court entertained a revision.",
     "processed_at": 1756184362.2829056
   },
   "HBHC010068622024_1_2024-02-12.json": {
@@ -6591,12 +5907,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184370.9503186
-  },
-  "HBHC010037882014_1_2024-07-02.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The facts state the case was dismissed because the petitioner was released on bail, but the reasoning and judgment focus on the existence of a prior bail order without explaining why that would lead to dismissal of the revision petitions. This is a disconnect between facts and reasoning.",
-    "processed_at": 1756184370.9513175
   },
   "HBHC010072372024_1_2024-02-15.json": {
     "status": "success",
@@ -6788,12 +6098,6 @@
     "decision": "KEEP",
     "processed_at": 1756184390.8553011
   },
-  "HBHC010053682024_1_2024-02-06.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court's final decision is not provided, making it impossible to fully validate the analysis.]",
-    "processed_at": 1756184390.8562996
-  },
   "HBHC010053742024_1_2024-02-26.json": {
     "status": "success",
     "decision": "KEEP",
@@ -6803,12 +6107,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184390.8602996
-  },
-  "HBHC010053802019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment of dismissal as withdrawn doesn't directly answer whether criminal proceedings *should be* quashed as per the question, and the reasoning is about withdrawal, not the merits of quashing.]",
-    "processed_at": 1756184390.8642986
   },
   "HBHC010051272018_1_2024-07-31.json": {
     "status": "success",
@@ -6828,12 +6126,6 @@
   "HBHC010052292018_1_2024-07-30.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184391.0601716
-  },
-  "HBHC010053792019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The reasoning and judgment do not directly address the question asked about quashing the Magistrate's order and staying proceedings pending expert opinion. Instead, it states the petition was dismissed as infructuous without explaining why the specific requests (quashing, expert opinion, stay) were not met or became moot.",
     "processed_at": 1756184391.0601716
   },
   "HBHC010055092024_1_2024-02-07.json": {
@@ -6906,12 +6198,6 @@
     "decision": "KEEP",
     "processed_at": 1756184397.0687428
   },
-  "HBHC010063912024_1_2024-02-08.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis correctly identifies the question and the facts, but the reasoning and judgment do not directly answer whether the proceedings were quashed. Instead, it outlines a direction for investigation, which is different from the question asked.",
-    "processed_at": 1756184397.0697453
-  },
   "HBHC010063982024_1_2024-02-21.json": {
     "status": "success",
     "decision": "KEEP",
@@ -6921,12 +6207,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184398.8086572
-  },
-  "HBHC010064332024_1_2024-02-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Missing critical information for judgment",
-    "processed_at": 1756184398.809655
   },
   "HBHC010064222021_1_2024-07-18.json": {
     "status": "success",
@@ -6967,12 +6247,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184399.935622
-  },
-  "HBHC010064482022_1_2024-01-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court's reasoning and decision in the second case are inconsistent. While the petitioner sought to quash an order, the court closed the petition as infructuous because a conviction occurred and an appeal was filed. This doesn't directly address whether the original order should have been quashed, but rather concludes the process is moot due to subsequent events.",
-    "processed_at": 1756184399.9371214
   },
   "HBHC010067352024_1_2024-02-09.json": {
     "status": "success",
@@ -7047,12 +6321,6 @@
   "HBHC010064392024_1_2024-02-09.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184403.2532556
-  },
-  "HBHC010064412023_1_2024-11-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court reasoning and decision do not clearly state whether contempt charges were proven or what the outcome was regarding the alleged violations.]",
     "processed_at": 1756184403.2532556
   },
   "HBHC010064432024_1_2024-02-13.json": {
@@ -7130,18 +6398,6 @@
     "decision": "KEEP",
     "processed_at": 1756184405.973943
   },
-  "HBHC010071392019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning and decision do not state the outcome of the quashing petition.",
-    "processed_at": 1756184405.9749458
-  },
-  "HBHC010071372019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning and decision do not state the outcome of the quashing petition.",
-    "processed_at": 1756184405.9759426
-  },
   "HBHC010071412024_1_2024-02-15.json": {
     "status": "success",
     "decision": "KEEP",
@@ -7207,12 +6463,6 @@
     "decision": "KEEP",
     "processed_at": 1756184409.0274153
   },
-  "HBHC010073182024_1_2024-02-14.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment and reasoning do not directly answer the question about a writ of mandamus. The judgment simply states the case involves allegations and the petitioner's prayer, not the court's decision on granting the writ.",
-    "processed_at": 1756184409.028422
-  },
   "HBHC010073192024_1_2024-02-21.json": {
     "status": "success",
     "decision": "KEEP",
@@ -7231,12 +6481,6 @@
   "HBHC010073442024_1_2024-03-04.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184411.3037617
-  },
-  "HBHC010073492024_1_2024-02-14.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment dismisses the petition as not maintainable because the petitioner's name is not in the FIR, but the question asks if the proceedings were quashed. While a dismissal as not maintainable is a form of not quashing, the reasoning doesn't directly address the core question of quashing itself based on merit or lack thereof.",
     "processed_at": 1756184411.3037617
   },
   "HBHC010073592019_1_2024-09-30.json": {
@@ -7274,24 +6518,6 @@
     "decision": "KEEP",
     "processed_at": 1756184412.5280652
   },
-  "HBHC010075172024_1_2024-02-15.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "REMOVE: The judgment is not provided, so its consistency with the reasoning cannot be verified.",
-    "processed_at": 1756184412.5280652
-  },
-  "HBHC010075152015_1_2024-10-29.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "REMOVE: The case is dismissed as infructuous due to a charge sheet being filed, which is a procedural outcome rather than a decision on the merits of the original legal issue. While the court's action is consistent, the original legal question regarding the merits of quashing proceedings is not answered, only that the petition to do so is no longer the correct avenue.",
-    "processed_at": 1756184412.530066
-  },
-  "HBHC010075052017_1_2024-04-04.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "REMOVE: The judgment is not provided, so its consistency with the reasoning cannot be verified.",
-    "processed_at": 1756184412.530066
-  },
   "HBHC010075222024_1_2024-02-16.json": {
     "status": "success",
     "decision": "KEEP",
@@ -7313,12 +6539,6 @@
     "decision": "KEEP",
     "processed_at": 1756184414.5771859
   },
-  "HBHC010073942024_1_2024-03-20.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment does not address the legal question of whether criminal proceedings should be quashed, but rather modifies appearance requirements.",
-    "processed_at": 1756184414.5771859
-  },
   "HBHC010074762024_1_2024-02-16.json": {
     "status": "success",
     "decision": "KEEP",
@@ -7338,12 +6558,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184414.9914868
-  },
-  "HBHC010075382024_1_2024-02-21.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment contradicts the reasoning by stating the bail is dismissed due to commercial quantity, while the reasoning elaborates on the facts that led to that dismissal. The legal question asks if bail was granted, and the judgment states it was dismissed. However, the analysis provided focuses on the facts and the reasoning for dismissal, not directly answering whether bail was granted (which it was not).",
-    "processed_at": 1756184414.9925804
   },
   "HBHC010075402024_1_2024-02-16.json": {
     "status": "success",
@@ -7369,12 +6583,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184415.3970795
-  },
-  "HBHC010076522024_1_2024-08-29.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court reasoning and decision do not explicitly state the final outcome of the appeal (i.e., whether the conviction was upheld, overturned, or modified, only that it was 'partly allowed' and 'modifying the conviction or sentence'). This leaves the \"judgment\" vague and not fully aligned with the reasoning's implication.",
-    "processed_at": 1756184415.3981032
   },
   "HBHC010075422024_1_2024-02-21.json": {
     "status": "success",
@@ -7420,12 +6628,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184417.9260404
-  },
-  "HBHC010077262024_1_2024-02-15.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not contain the court's decision on the legal question posed.",
-    "processed_at": 1756184417.927034
   },
   "HBHC010075892024_1_2024-02-14.json": {
     "status": "success",
@@ -7485,12 +6687,6 @@
   "HBHC010078082024_1_2024-02-19.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184420.9633682
-  },
-  "HBHC010078102024_1_2024-02-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[case_summary does not provide a definitive judgment or reasoning for the granted relief, only that the petition was withdrawn and the petitioners could approach the trial court]",
     "processed_at": 1756184420.9633682
   },
   "HBHC010078242018_1_2024-07-18.json": {
@@ -7568,12 +6764,6 @@
     "decision": "KEEP",
     "processed_at": 1756184426.0740285
   },
-  "HBHC010081042009_1_2024-01-08.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The metadata category \"Criminal: Quash petition\" does not align with the case facts and legal issue which clearly concern the application of Sections 145 and 147 of the CrPC for a land dispute, not a quashing of a criminal proceeding.",
-    "processed_at": 1756184426.075023
-  },
   "HBHC010080972024_1_2024-02-27.json": {
     "status": "success",
     "decision": "KEEP",
@@ -7593,12 +6783,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184428.2993774
-  },
-  "HBHC010078662015_1_2024-01-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not provide a judgment or reasoning for the legal question asked; it only states the question and the nature of the petition.",
-    "processed_at": 1756184428.300695
   },
   "HBHC010080282024_1_2024-02-19.json": {
     "status": "success",
@@ -7639,12 +6823,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184430.6520603
-  },
-  "HBHC010082952024_1_2024-02-21.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not explicitly answer whether anticipatory bail was granted or denied, only that arguments were heard and the court considered various factors. The judgment is a description of the court's action rather than a decision.",
-    "processed_at": 1756184430.6530614
   },
   "HBHC010082842024_1_2024-02-19.json": {
     "status": "success",
@@ -7696,28 +6874,10 @@
     "decision": "KEEP",
     "processed_at": 1756184432.9364982
   },
-  "HBHC010083172024_1_2024-02-21.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis states the decision is pending, but the question asks for the outcome.",
-    "processed_at": 1756184432.937498
-  },
   "HBHC010083202024_1_2024-02-21.json": {
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184432.937498
-  },
-  "HBHC010083212011_1_2024-11-08.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "HBHC010083212011_1_2024-11-08.json - The court's decision on the appeal (uphold or overturn conviction) is not stated in the summary, making it impossible to answer the question definitively.",
-    "processed_at": 1756184433.8351462
-  },
-  "HBHC010083292014_1_2024-07-24.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "HBHC010083292014_1_2024-07-24.json - The court's decision on the appeal (uphold or overturn conviction) is not stated in the summary, making it impossible to answer the question definitively.",
-    "processed_at": 1756184433.8371465
   },
   "HBHC010085412024_1_2024-02-22.json": {
     "status": "success",
@@ -7794,24 +6954,6 @@
     "decision": "KEEP",
     "processed_at": 1756184441.850696
   },
-  "HBHC010061322024_1_2024-02-07.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis provided in the \\\"analysis\\\" section does not directly answer the \\\"question\\\" asked. The question asks if the High Court quashed the FIR and stayed arrest, but the analysis and court reasoning indicate that the court directed the petitioner to appear and cooperate with the investigation, which is not the same as quashing the FIR and staying arrest.",
-    "processed_at": 1756184441.850696
-  },
-  "HBHC010061772024_1_2024-02-07.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis provided in the \\\"analysis\\\" section does not directly answer the \\\"question\\\" asked. The question asks if the High Court quashed the criminal proceedings, but the analysis and court reasoning indicate that the court directed the petitioners to appear and cooperate with the investigation, which is not the same as quashing the proceedings.",
-    "processed_at": 1756184441.8518136
-  },
-  "HBHC010061822024_1_2024-02-07.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis provided in the \\\"analysis\\\" section does not directly answer the \\\"question\\\" asked. The question asks if the High Court quashed proceedings for offences under IPC and SC/ST (POA) Act, but the analysis and court reasoning indicate that the court directed the petitioners to appear and cooperate with the investigation, which is not the same as quashing the proceedings.",
-    "processed_at": 1756184441.8518136
-  },
   "HBHC010061832024_1_2024-02-13.json": {
     "status": "success",
     "decision": "KEEP",
@@ -7832,12 +6974,6 @@
     "decision": "KEEP",
     "processed_at": 1756184443.1004844
   },
-  "HBHC010062022024_1_2024-02-19.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The case states the question is about Sections 304-A, 337, and 338 IPC, but the judgment and reasoning only discuss upholding convictions under Sections 304-A and 337, implying Section 338 was already dealt with. This creates a slight inconsistency in addressing the full scope of the original question.]",
-    "processed_at": 1756184443.1014829
-  },
   "HBHC010062282024_1_2025-02-03.json": {
     "status": "success",
     "decision": "KEEP",
@@ -7853,12 +6989,6 @@
     "decision": "KEEP",
     "processed_at": 1756184445.150122
   },
-  "HBHC010066262024_1_2024-02-13.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[Metadata does not accurately reflect the case outcome, which was dismissal of petition, not withdrawal.]",
-    "processed_at": 1756184445.151121
-  },
   "HBHC010066302024_1_2024-02-09.json": {
     "status": "success",
     "decision": "KEEP",
@@ -7873,12 +7003,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184445.483588
-  },
-  "HBHC010088112023_1_2024-10-16.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not provide the court's decision on the legal question asked.",
-    "processed_at": 1756184445.4845893
   },
   "HBHC010088202024_1_2024-02-21.json": {
     "status": "success",
@@ -8030,12 +7154,6 @@
     "decision": "KEEP",
     "processed_at": 1756184451.2781317
   },
-  "HBHC010055962024_1_2024-02-12.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The facts state possession of 17.03 Kg of dry ganja, which is far above the 'less than commercial quantity' threshold for cannabis as per the NDPS Act, making the legal reasoning flawed in its premise.",
-    "processed_at": 1756184451.279133
-  },
   "HBHC010055762024_1_2024-02-05.json": {
     "status": "success",
     "decision": "KEEP",
@@ -8060,12 +7178,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184451.7416894
-  },
-  "HBHC010065002023_1_2024-02-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment and court reasoning do not provide a definitive decision on the petition to quash criminal proceedings. It only states that the arguments were heard and the case was listed for further consideration.",
-    "processed_at": 1756184451.7426953
   },
   "HBHC010065022024_1_2024-02-12.json": {
     "status": "success",
@@ -8107,12 +7219,6 @@
     "decision": "KEEP",
     "processed_at": 1756184454.0849924
   },
-  "HBHC010056202024_1_2024-02-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The analysis is incomplete and does not provide a clear decision or judgment on the anticipatory bail application.]",
-    "processed_at": 1756184454.0849924
-  },
   "HBHC010060122024_1_2024-05-03.json": {
     "status": "success",
     "decision": "KEEP",
@@ -8128,12 +7234,6 @@
     "decision": "KEEP",
     "processed_at": 1756184454.4743457
   },
-  "HBHC010071352019_1_2024-01-25.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "Reasoning does not explain the outcome. The judgment section states the petition was filed to quash proceedings, but the court reasoning describes the purpose of Section 482 and does not detail whether the proceedings *were* quashed or not. The decision is also ambiguous.",
-    "processed_at": 1756184454.4753458
-  },
   "HBHC010071372024_1_2024-02-15.json": {
     "status": "success",
     "decision": "KEEP",
@@ -8143,12 +7243,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184454.4852016
-  },
-  "HBHC010068662024_1_2024-03-21.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The analysis does not provide a decision on the legal question asked.]",
-    "processed_at": 1756184456.3142645
   },
   "HBHC010068912024_1_2024-02-14.json": {
     "status": "success",
@@ -8235,12 +7329,6 @@
     "decision": "KEEP",
     "processed_at": 1756184461.3809907
   },
-  "HBHC010071842024_1_2024-03-19.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment does not provide a definitive decision on whether the proceedings should be quashed; it only states that the court will consider arguments.",
-    "processed_at": 1756184461.3809907
-  },
   "HBHC010071942024_1_2024-02-16.json": {
     "status": "success",
     "decision": "KEEP",
@@ -8256,21 +7344,9 @@
     "decision": "KEEP",
     "processed_at": 1756184461.8497906
   },
-  "HBHC010073662024_1_2024-10-24.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[Judgment does not align with reasoning and court's decision. The court noted serious allegations requiring trial, but dismissed the petition due to the complainant's absence, which is not a sound legal reason to dismiss a quash petition when serious allegations are present.]",
-    "processed_at": 1756184461.8497906
-  },
   "HBHC010073822024_1_2024-02-29.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184461.8507533
-  },
-  "HBHC010073882024_1_2024-02-15.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The judgment states the FIR was not quashed but issued directions under Section 41-A Cr.P.C., while the question explicitly asks if the FIR proceedings were quashed. The analysis does not directly answer the question asked.]",
     "processed_at": 1756184461.8507533
   },
   "HBHC010082082024_1_2024-02-21.json": {
@@ -8293,38 +7369,14 @@
     "decision": "KEEP",
     "processed_at": 1756184462.1718614
   },
-  "HBHC010082232020_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The provided reasoning does not clearly explain why the criminal proceedings became infructuous, which is the sole basis for the dismissal.",
-    "processed_at": 1756184462.1718614
-  },
   "HBHC010076142024_1_2024-08-19.json": {
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184464.2531059
   },
-  "HBHC010077922024_1_2024-02-19.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment is missing and the reasoning does not definitively state the court's decision on the anticipatory bail.",
-    "processed_at": 1756184464.2531059
-  },
-  "HBHC010077932024_1_2024-06-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment is missing and the court's decision on quashing the charge sheet is not stated.",
-    "processed_at": 1756184464.2541056
-  },
   "HBHC010078072024_1_2024-02-16.json": {
     "status": "success",
     "decision": "KEEP",
-    "processed_at": 1756184464.2541056
-  },
-  "HBHC010078532024_1_2024-02-15.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment does not clearly state the outcome of the petition; it only states that the High Court addressed the request for anticipatory bail.",
     "processed_at": 1756184464.2541056
   },
   "HBHC010081862024_1_2024-02-19.json": {
@@ -8396,12 +7448,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184466.9966826
-  },
-  "HBHC010083502024_1_2024-02-21.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The judgment does not directly answer the question. While it states the pendency of a criminal case is not a ground for refusal, it does not explicitly state the High Court ordered the renewal, only that the refusal was contrary to the law.",
-    "processed_at": 1756184466.9976885
   },
   "HBHC010083572024_1_2024-02-20.json": {
     "status": "success",
@@ -8508,22 +7554,10 @@
     "decision": "KEEP",
     "processed_at": 1756184475.0118139
   },
-  "HBHC010084382024_1_2024-10-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court's decision to dismiss the petitions as infructuous is not elaborated upon, making it difficult to assess the validity of the reasoning or its alignment with the question of quashing the proceedings.]",
-    "processed_at": 1756184475.0173538
-  },
   "HBHC010084452024_1_2024-02-26.json": {
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184475.0323448
-  },
-  "HBHC010084462020_1_2024-09-05.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The analysis does not explain *why* the High Court considered the petition or what the outcome of that consideration was, beyond stating that it was considered.]",
-    "processed_at": 1756184475.0343473
   },
   "HBHC010084472024_1_2024-02-20.json": {
     "status": "success",
@@ -8600,12 +7634,6 @@
     "decision": "KEEP",
     "processed_at": 1756184478.3076968
   },
-  "HBHC010090022020_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The court's decision to extend interim protection against coercive steps instead of quashing the FIR or staying proceedings entirely is a nuanced outcome, but the reasoning doesn't explicitly address whether the FIR *should* be quashed. The question is about quashing, and the answer is essentially a continuation of interim relief.",
-    "processed_at": 1756184478.309157
-  },
   "HBHC010087712015_1_2024-09-05.json": {
     "status": "success",
     "decision": "KEEP",
@@ -8630,12 +7658,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184481.5513852
-  },
-  "HBHC010089362024_1_2024-02-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The case was dismissed as withdrawn, rendering the analysis of the legal question moot for determining validity.]",
-    "processed_at": 1756184481.552373
   },
   "HBHC010089582024_1_2024-02-26.json": {
     "status": "success",
@@ -8727,12 +7749,6 @@
     "decision": "KEEP",
     "processed_at": 1756184488.0509212
   },
-  "HBHC010090962024_1_2024-02-26.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "The analysis does not directly answer whether anticipatory bail was granted. It only states the petition was dismissed as withdrawn.",
-    "processed_at": 1756184488.0519195
-  },
   "HBHC010091972019_1_2024-01-12.json": {
     "status": "success",
     "decision": "KEEP",
@@ -8742,12 +7758,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184497.671585
-  },
-  "HBHC010092462024_1_2024-09-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[law application accuracy - case mentions BNSS/IPC, but the judgment implies a focus on procedural waiver rather than substantive criminal law application]",
-    "processed_at": 1756184497.6725838
   },
   "HBHC010092492020_1_2024-01-30.json": {
     "status": "success",
@@ -8789,12 +7799,6 @@
     "decision": "KEEP",
     "processed_at": 1756184500.492957
   },
-  "HBHC010094052014_1_2024-10-22.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The question asks about quashing non-bailable warrants, but the decision states dismissal for non-prosecution due to lack of representation and interest, which doesn't directly address the quashing of warrants.]",
-    "processed_at": 1756184500.492957
-  },
   "HBHC010094092020_1_2024-01-30.json": {
     "status": "success",
     "decision": "KEEP",
@@ -8814,18 +7818,6 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184500.8488362
-  },
-  "HBHC010093752015_1_2024-01-31.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The legal issue does not align with the court's reasoning or judgment. The case summary and reasoning indicate a writ petition was dismissed as infructuous because the cause for the petition ceased to exist, but the legal issue focuses on the petitioner's name in an FIR under specific IPC sections.]",
-    "processed_at": 1756184500.850838
-  },
-  "HBHC010093792020_1_2024-01-30.json": {
-    "status": "success",
-    "decision": "REMOVE",
-    "reason": "[The court's decision to advise filing a private complaint is a procedural suggestion, not a direct resolution of the legal issue concerning the quashing of the notice and FIR registration. The reasoning does not fully address whether the initial non-registration notice was valid or if an FIR should have been registered.]",
-    "processed_at": 1756184500.850838
   },
   "HBHC010020402024_1_2024-01-30.json": {
     "status": "success",
@@ -8851,5 +7843,869 @@
     "status": "success",
     "decision": "KEEP",
     "processed_at": 1756184510.0939927
+  },
+  "HBHC010001112024_1_2024-01-04.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187123.9845815
+  },
+  "HBHC010001812024_1_2024-01-04.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187123.9865792
+  },
+  "HBHC010007412024_1_2024-01-08.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187127.4650824
+  },
+  "HBHC010008542024_1_2024-01-09.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187127.4650824
+  },
+  "HBHC010008612024_1_2024-04-02.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187127.4660723
+  },
+  "HBHC010008692018_1_2024-08-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187127.4660723
+  },
+  "HBHC010008692024_1_2024-01-09.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187127.4670806
+  },
+  "HBHC010000732020_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187129.4137745
+  },
+  "HBHC010002392024_1_2024-02-26.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187129.4147763
+  },
+  "HBHC010004612024_1_2024-01-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187131.561285
+  },
+  "HBHC010004872024_1_2024-01-09.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187131.561285
+  },
+  "HBHC010005012024_1_2024-04-29.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187131.5622923
+  },
+  "HBHC010017282019_1_2024-09-13.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187131.563284
+  },
+  "HBHC010007772019_1_2024-06-14.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187134.8367426
+  },
+  "HBHC010009722024_1_2025-01-07.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187134.8367426
+  },
+  "HBHC010013052019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187134.837745
+  },
+  "HBHC010003962024_1_2024-01-04.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187134.837745
+  },
+  "HBHC010013252024_1_2024-02-26.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187136.477789
+  },
+  "HBHC010013342016_1_2024-10-01.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187136.4787767
+  },
+  "HBHC010019992024_1_2024-01-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187136.4787767
+  },
+  "HBHC010020222024_1_2024-02-06.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187136.4787767
+  },
+  "HBHC010022872024_1_2024-09-10.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187136.4797747
+  },
+  "HBHC010014062024_1_2024-01-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187138.3195965
+  },
+  "HBHC010026192019_1_2024-01-11.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187138.320611
+  },
+  "HBHC010026152014_1_2024-10-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187139.0367785
+  },
+  "HBHC010021672024_1_2024-01-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187139.0377798
+  },
+  "HBHC010018172010_1_2024-03-20.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187139.4430919
+  },
+  "HBHC010027422024_1_2024-01-23.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187139.4430919
+  },
+  "HBHC010030972024_1_2024-01-24.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187139.4440882
+  },
+  "HBHC010031002024_1_2024-08-22.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187139.4440882
+  },
+  "HBHC010030382024_1_2024-01-23.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.0077317
+  },
+  "HBHC010035552024_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.0098329
+  },
+  "HBHC010029342018_1_2025-01-22.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.2006981
+  },
+  "HBHC010034812016_1_2024-02-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.2016978
+  },
+  "HBHC010034872014_1_2024-02-02.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.2026987
+  },
+  "HBHC010030122015_1_2024-03-22.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.205698
+  },
+  "HBHC010033482024_1_2024-06-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.4678662
+  },
+  "HBHC010022492018_1_2024-09-11.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.4678662
+  },
+  "HBHC010023262024_1_2024-01-22.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187142.4678662
+  },
+  "HBHC010035882024_1_2024-01-29.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187144.6817439
+  },
+  "HBHC010031132024_1_2024-02-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187144.698644
+  },
+  "HBHC010039942016_1_2024-11-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187145.208957
+  },
+  "HBHC010040432024_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187145.208957
+  },
+  "HBHC010040522024_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187145.2099435
+  },
+  "HBHC010040692022_1_2024-02-13.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187145.2099435
+  },
+  "HBHC010034382024_1_2024-03-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187145.4026723
+  },
+  "HBHC010039472024_1_2024-01-29.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187145.4026723
+  },
+  "HBHC010039592024_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187145.4036698
+  },
+  "HBHC010044442024_1_2024-12-27.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187147.9452002
+  },
+  "HBHC010045812024_1_2024-01-31.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187147.9461482
+  },
+  "HBHC010049622024_1_2024-02-01.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187147.9461482
+  },
+  "HBHC010049652024_1_2024-02-01.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187147.9461482
+  },
+  "HBHC010043082024_1_2024-02-26.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187148.1285508
+  },
+  "HBHC010043352024_1_2024-02-01.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187148.1295621
+  },
+  "HBHC010050232023_1_2024-11-06.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187148.3496788
+  },
+  "HBHC010052862024_1_2024-03-06.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187148.350624
+  },
+  "HBHC010053692024_1_2024-02-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187148.350624
+  },
+  "HBHC010053702024_1_2024-02-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187148.350624
+  },
+  "HBHC010053862024_1_2025-02-19.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187148.350624
+  },
+  "HBHC010045152024_1_2024-01-31.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187150.3847277
+  },
+  "HBHC010045162024_1_2024-02-01.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187150.3857284
+  },
+  "HBHC010042582024_1_2024-03-18.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187150.3857284
+  },
+  "HBHC010044522024_1_2024-01-31.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187150.3857284
+  },
+  "HBHC010044532024_1_2024-01-31.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187150.3857284
+  },
+  "HBHC010053882019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187150.6072817
+  },
+  "HBHC010044542024_1_2024-01-31.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187151.4632618
+  },
+  "HBHC010045302018_1_2024-08-08.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187151.4632618
+  },
+  "HBHC010051982024_1_2024-02-16.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187151.4632618
+  },
+  "HBHC010056342023_1_2024-03-28.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187153.2414122
+  },
+  "HBHC010063752010_1_2024-10-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187153.2414122
+  },
+  "HBHC010064862015_1_2024-09-26.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187153.242398
+  },
+  "HBHC010065412024_1_2024-02-29.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187153.242398
+  },
+  "HBHC010065432024_1_2024-05-03.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187153.2434008
+  },
+  "HBHC010037882014_1_2024-07-02.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187154.2271044
+  },
+  "HBHC010053682024_1_2024-02-06.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187154.2291014
+  },
+  "HBHC010053802019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187154.2291014
+  },
+  "HBHC010053792019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187154.2301016
+  },
+  "HBHC010063912024_1_2024-02-08.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187154.2301016
+  },
+  "HBHC010065892024_1_2024-07-11.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187154.431973
+  },
+  "HBHC010066692024_1_2024-02-20.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187154.4329772
+  },
+  "HBHC010069682011_1_2024-01-11.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187154.4329772
+  },
+  "HBHC010073942024_1_2024-03-20.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187156.9589217
+  },
+  "HBHC010075382024_1_2024-02-21.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187156.9599214
+  },
+  "HBHC010076522024_1_2024-08-29.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187156.9599214
+  },
+  "HBHC010078102024_1_2024-02-22.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187156.9609206
+  },
+  "HBHC010064482022_1_2024-01-22.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187160.8242862
+  },
+  "HBHC010073182024_1_2024-02-14.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187161.0840604
+  },
+  "HBHC010073492024_1_2024-02-14.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187161.0844846
+  },
+  "HBHC010075172024_1_2024-02-15.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187161.0844846
+  },
+  "HBHC010075052017_1_2024-04-04.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187161.0855434
+  },
+  "HBHC010078662015_1_2024-01-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187163.6268265
+  },
+  "HBHC010083292014_1_2024-07-24.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187163.917318
+  },
+  "HBHC010066262024_1_2024-02-13.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187164.2040324
+  },
+  "HBHC010055962024_1_2024-02-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187164.2100322
+  },
+  "HBHC010071352019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.2258017
+  },
+  "HBHC010068662024_1_2024-03-21.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.2268033
+  },
+  "HBHC010071842024_1_2024-03-19.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.2278075
+  },
+  "HBHC010073662024_1_2024-10-24.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.2278075
+  },
+  "HBHC010073882024_1_2024-02-15.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.2288005
+  },
+  "HBHC010084382024_1_2024-10-22.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.5075576
+  },
+  "HBHC010084462020_1_2024-09-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.5075576
+  },
+  "HBHC010090022020_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.5085616
+  },
+  "HBHC010089362024_1_2024-02-26.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.5095785
+  },
+  "HBHC010090962024_1_2024-02-26.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.5095785
+  },
+  "HBHC010082232020_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.7263541
+  },
+  "HBHC010077922024_1_2024-02-19.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.7263541
+  },
+  "HBHC010078532024_1_2024-02-15.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.727366
+  },
+  "HBHC010083502024_1_2024-02-21.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187166.727366
+  },
+  "HBHC010092462024_1_2024-09-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187168.7278469
+  },
+  "HBHC010094052014_1_2024-10-22.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187168.7346525
+  },
+  "HBHC010093752015_1_2024-01-31.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187168.7368937
+  },
+  "HBHC010093792020_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187168.737893
+  },
+  "HBHC010001152024_1_2024-03-21.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187441.5293975
+  },
+  "HBHC010001582024_1_2024-02-26.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187441.5293975
+  },
+  "HBHC010005672021_1_2024-08-28.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The judgment is not fully provided, preventing a complete validation of reasoning and decision alignment.",
+    "processed_at": 1756187441.5303946
+  },
+  "HBHC010006882010_1_2024-06-24.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The final judgment of the High Court is not provided in the extracted text.",
+    "processed_at": 1756187441.5303946
+  },
+  "HBHC010007212022_1_2024-05-02.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The provided text is incomplete and does not state the final decision on quashing the proceedings.",
+    "processed_at": 1756187441.560395
+  },
+  "HBHC010026272015_1_2024-01-08.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187444.9054582
+  },
+  "HBHC010015912019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The judgment states the petition was dismissed as infructuous, which is a procedural outcome and doesn't directly answer whether the proceedings *should* be quashed based on merits, but it does provide a conclusive outcome for the petition itself. The analysis correctly identifies the question and the grounds for the petition. The law applied is correct, and the court reasoning aligns with the provided facts. The decision to dismiss as infructuous aligns with the fact that the petition itself was being addressed. Metadata is accurate.",
+    "processed_at": 1756187444.9064553
+  },
+  "HBHC010024562013_1_2024-01-02.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187444.9064553
+  },
+  "HBHC010032522015_1_2024-04-15.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The court considered the revision petition against acquittal but did not explicitly state the outcome, making it impossible to verify if the legal question of what the High Court decided was answered. The facts and legal issue are aligned, and the law applied is relevant. However, the reasoning and decision are too vague to confirm a complete assessment.",
+    "processed_at": 1756187444.907456
+  },
+  "HBHC010033332024_1_2024-03-07.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The court needed to decide whether the conviction for murder was sustainable, but the decision on this is not explicitly stated. While the analysis outlines the arguments and the court's task, it fails to provide the High Court's final determination, thus not answering the question of whether the conviction was upheld.",
+    "processed_at": 1756187444.907456
+  },
+  "HBHC010012682024_1_2024-04-08.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187446.9558513
+  },
+  "HBHC010008742024_1_2024-03-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187446.9568558
+  },
+  "HBHC010023372024_1_2024-01-12.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "Incomplete information provided for analysis.",
+    "processed_at": 1756187446.9568558
+  },
+  "HBHC010015802015_1_2024-01-02.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "Court decision is not provided.",
+    "processed_at": 1756187446.9578507
+  },
+  "HBHC010015992015_1_2024-11-28.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187446.9578507
+  },
+  "HBHC010035912024_1_2024-01-29.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187449.139672
+  },
+  "HBHC010036572024_1_2024-02-21.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "REMOVE: Court reasoning does not fully align with the judgment, as it states the petitioner was permitted to withdraw the petition, but the judgment only states the petition was disposed of by directing the police to provide a closure report.",
+    "processed_at": 1756187449.1406739
+  },
+  "HBHC010030442015_1_2024-07-02.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The judgment is truncated and does not provide a definitive decision on the appeal, only that the court reviewed the evidence.",
+    "processed_at": 1756187449.1406739
+  },
+  "HBHC010037702011_1_2024-08-09.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The judgment is truncated and does not provide a definitive decision on the appeal, only that the court reviewed the evidence.",
+    "processed_at": 1756187449.1416705
+  },
+  "HBHC010039892019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The judgment is truncated and does not provide a definitive decision on the appeal, only that the court reviewed the evidence.",
+    "processed_at": 1756187449.142674
+  },
+  "HBHC010031282024_1_2024-04-02.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187451.460274
+  },
+  "HBHC010034992016_1_2024-11-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187451.4682734
+  },
+  "HBHC010030412024_1_2024-01-24.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187451.4692726
+  },
+  "HBHC010032552024_1_2024-03-11.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The analysis does not state whether the High Court granted or denied the petition for forensic examination and summoning of the service provider.",
+    "processed_at": 1756187451.4692726
+  },
+  "HBHC010035822024_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The analysis does not state whether the High Court quashed the criminal proceedings for alleged offenses under Sections 143 and 341 IPC.",
+    "processed_at": 1756187451.4732745
+  },
+  "HBHC010040752024_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187452.9949412
+  },
+  "HBHC010042122015_1_2024-09-26.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "Summary does not specify the final decision on the appeal.",
+    "processed_at": 1756187452.9949412
+  },
+  "HBHC010044292024_1_2024-12-18.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187452.9949412
+  },
+  "HBHC010043702024_1_2024-01-31.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187452.9949412
+  },
+  "HBHC010050082024_1_2024-02-02.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The court did not quash the FIR but directed a consideration of transferring the case.",
+    "processed_at": 1756187452.9959373
+  },
+  "HBHC010061642024_1_2024-02-08.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187454.6346354
+  },
+  "HBHC010063142024_1_2024-02-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187454.6356347
+  },
+  "HBHC010038502019_1_2024-01-11.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187454.6366336
+  },
+  "HBHC010039272024_1_2024-01-30.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187454.6366336
+  },
+  "HBHC010046242024_1_2024-01-31.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187454.6376326
+  },
+  "HBHC010056372024_1_2024-02-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187455.3555796
+  },
+  "HBHC010068012024_1_2024-03-01.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187455.3565814
+  },
+  "HBHC010068212024_1_2024-09-05.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "Truncated judgment prevents full assessment of reasoning and decision alignment.",
+    "processed_at": 1756187455.3575792
+  },
+  "HBHC010064332024_1_2024-02-12.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187455.3595808
+  },
+  "HBHC010064412023_1_2024-11-22.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "Truncated judgment prevents full assessment of reasoning and decision alignment.",
+    "processed_at": 1756187455.3595808
+  },
+  "HBHC010071392019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187455.7591743
+  },
+  "HBHC010071372019_1_2024-01-25.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187455.7601736
+  },
+  "HBHC010075152015_1_2024-10-29.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The case excerpt ends before the High Court's final decision is stated, thus failing to answer the posed question.",
+    "processed_at": 1756187455.7601736
+  },
+  "HBHC010077262024_1_2024-02-15.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The case excerpt ends before the High Court's final decision is stated, thus failing to answer the posed question.",
+    "processed_at": 1756187455.761174
+  },
+  "HBHC010081042009_1_2024-01-08.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187455.761174
+  },
+  "HBHC010082952024_1_2024-02-21.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187457.120848
+  },
+  "HBHC010083172024_1_2024-02-21.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187457.6316488
+  },
+  "HBHC010083212011_1_2024-11-08.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "[Analysis does not state whether the High Court upheld or overturned the conviction and sentence, failing to answer the legal question.]",
+    "processed_at": 1756187457.9582522
+  },
+  "HBHC010061322024_1_2024-02-07.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187458.2713535
+  },
+  "HBHC010077932024_1_2024-06-05.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187459.2475379
+  },
+  "HBHC010061822024_1_2024-02-07.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187459.6214197
+  },
+  "HBHC010062022024_1_2024-02-19.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187459.622411
+  },
+  "HBHC010088112023_1_2024-10-16.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The analysis acknowledges that the specific outcome of the quashing petition is not fully detailed in the provided text.",
+    "processed_at": 1756187459.622411
+  },
+  "HBHC010065002023_1_2024-02-26.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The analysis acknowledges that the court heard arguments and listed the case for further consideration, meaning no final decision on quashing was reached.",
+    "processed_at": 1756187459.6234114
+  },
+  "HBHC010056202024_1_2024-02-26.json": {
+    "status": "success",
+    "decision": "REMOVE",
+    "reason": "The analysis acknowledges that the judgment details were truncated and the matter was not fully adjudicated, indicating no final decision on anticipatory bail.",
+    "processed_at": 1756187459.6234114
+  },
+  "HBHC010061772024_1_2024-02-07.json": {
+    "status": "success",
+    "decision": "KEEP",
+    "processed_at": 1756187460.136169
   }
 }
