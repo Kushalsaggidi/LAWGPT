@@ -1,0 +1,201 @@
+{
+  "HBHC010000071995_1_2005-03-03.json": {
+    "status": "success"
+  },
+  "HBHC010000251992_1_2005-02-09.json": {
+    "status": "failed",
+    "error": "HTTP 429"
+  },
+  "HBHC010000212005_1_2005-10-06.json": {
+    "status": "failed",
+    "error": "HTTP 429"
+  },
+  "HBHC010000081994_1_2005-09-21.json": {
+    "status": "failed",
+    "error": "HTTP 429"
+  },
+  "HBHC010000432005_1_2005-07-08.json": {
+    "status": "failed",
+    "error": "HTTP 429"
+  },
+  "HBHC010000461998_1_2005-07-04.json": {
+    "status": "failed",
+    "error": "HTTP 429"
+  },
+  "HBHC010000232001_1_2005-11-24.json": {
+    "status": "failed",
+    "error": "HTTP 429"
+  },
+  "HBHC010000531995_1_2005-12-16.json": {
+    "status": "failed",
+    "error": "HTTP 429"
+  },
+  "HBHC010000352005_1_2005-05-03.json": {
+    "status": "failed",
+    "error": "HTTP 429"
+  },
+  "HBHC010000381996_1_2005-09-19.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000412005_1_2005-04-19.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000572005_1_2005-08-24.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000442005_1_2005-03-22.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000181986_1_2005-12-30.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000492005_1_2005-05-24.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000512005_1_2005-07-13.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000351995_1_2005-03-10.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000552004_1_2005-02-08.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'proce"
+  },
+  "HBHC010000391998_1_2005-06-16.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000092002_1_2005-06-22.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000152004_1_2005-02-14.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000472004_1_2005-02-08.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000661999_1_2005-06-28.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'proce"
+  },
+  "HBHC010000211993_1_2005-02-15.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000552005_1_2005-10-05.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000652004_1_2005-03-09.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000132002_1_2005-06-24.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000421998_1_2005-07-05.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000341995_1_2005-02-25.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000312005_1_2005-01-20.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000141997_1_2005-12-26.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000232005_1_2005-07-25.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000592005_1_2005-04-05.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000262002_1_2005-07-05.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000661997_1_2005-04-15.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000482005_1_2005-11-10.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000252005_1_2005-01-18.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000242005_1_2005-07-04.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000272005_1_2005-09-12.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000072005_1_2005-04-28.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000262005_1_2005-08-10.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000081996_1_2005-09-06.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000562005_1_2005-07-22.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000141996_1_2005-10-17.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000141993_1_2005-07-05.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000392005_1_2005-11-09.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000222001_1_2005-09-12.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000541995_1_2005-03-04.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'civil"
+  },
+  "HBHC010000621996_1_2005-12-19.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  },
+  "HBHC010000641996_1_2005-01-31.json": {
+    "status": "failed",
+    "error": "Processing error: [WinError 32] The process cannot access the file because it is being used by another process: 'crimi"
+  }
+}

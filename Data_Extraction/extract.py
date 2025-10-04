@@ -2,677 +2,510 @@ import os
 import json
 import asyncio
 import re
-from datetime import datetime
-from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass
+import time
+import psutil
+import random
+from datetime import datetime, timedelta
+from typing import Dict, Any, List, Optional, Tuple, AsyncGenerator
+from dataclasses import dataclass, field
+from pathlib import Path
+from collections import deque
 
 import pdfplumber
 import aiohttp
-import math  # add at top of file if not already imported
-import itertools
+import aiofiles
+import aiofiles.os
+from tqdm.asyncio import tqdm
 
+# ====================== CONFIGURATION ======================
+@dataclass
+class Config:
+    # Paths
+    base_dir: Path = Path(r"C:\Users\Kushal\Desktop\new\Data_Extraction\data\court_36_29_jan")
+    civil_output: Path = Path("civil_cases.json")
+    criminal_output: Path = Path("criminal_cases.json") 
+    progress_file: Path = Path("processing_progress.json")
+    
+    # API Configuration
+    api_keys: List[str] = field(default_factory=lambda: [
+        'AIzaSyByofJwHz-ULKTZP3TboSnDSgxgTIrA9OM',
+        'AIzaSyCz41qZibYl1rca9Ye7_pkKaaBlQnms6ME',
+        'AIzaSyA27TjinZixsBBl1ZkY7dRV9dK5Hf-ZzbA',
+        'AIzaSyBFEIHo4GKXri8a3rNAaQKq0EwRSrwjwYs',
+        'AIzaSyCAEEIT9lc5WxLAyq_N4SaKouAggntDxC4'
+    ])
+    model_variants: List[str] = field(default_factory=lambda: [
+        "gemini-2.5-flash-lite", 
+        "gemini-2.5-flash", 
+        "gemini-2.5-pro"
+    ])
+    
+    # Processing Limits - STREAMING APPROACH
+    max_concurrency: int = 4
+    pdf_concurrency: int = 3  # Further reduced for stability
+    batch_size: int = 5  # Process in small batches
+    batch_max_chars: int = 15000
+    per_item_text_cap: int = 4000  # Reduced to handle more files
+    pdf_timeout: int = 10  # Shorter timeout
+    
+    # Streaming settings
+    file_chunk_size: int = 50  # Process files in chunks
+    save_every: int = 10  # Save more frequently
+    
+    # Performance
+    retry_cycles: int = 2  # Fewer retries for faster processing
+    backoff_base: float = 1.2
+    backoff_max: float = 5.0
+    
+    # Resource Limits
+    max_memory_gb: float = 4.0  # Lower memory limit
+    max_cpu_percent: float = 75.0
 
-# ====================== CONFIG ======================
-# Keep your original style/filenames; adjust BASE_DIR/PDF_BASE_PATH as needed.
-BASE_DIR = r"C:\Users\Kushal\Desktop\new\Data_Extraction\data\court_36_29_jan"
-PDF_BASE_PATH = BASE_DIR
+config = Config()
 
-CIVIL_OUTPUT   = r"C:\Users\Kushal\Desktop\new\Data_Extraction\civil_cases.json"
-CRIMINAL_OUTPUT= r"C:\Users\Kushal\Desktop\new\Data_Extraction\criminal_cases.json"
-PROGRESS_FILE  = r"C:\Users\Kushal\Desktop\new\Data_Extraction\processed_cases.json"
+# ====================== METRICS & MONITORING ======================
+@dataclass
+class ProcessingMetrics:
+    start_time: datetime = field(default_factory=datetime.now)
+    total_discovered: int = 0
+    total_processed: int = 0
+    successful: int = 0
+    failed: int = 0
+    skipped: int = 0
+    pdf_extracted: int = 0
+    pdf_failed: int = 0
+    api_calls: int = 0
+    api_errors: int = 0
+    current_chunk: int = 0
+    
+    def success_rate(self) -> float:
+        return self.successful / max(self.total_processed, 1)
+    
+    def processing_rate(self) -> float:
+        elapsed = (datetime.now() - self.start_time).total_seconds()
+        return self.total_processed / max(elapsed / 60, 0.01)  # per minute
 
-# Concurrency & batching
-MAX_CONCURRENCY        = 5          # batches in flight
-BATCH_MAX_ITEMS        = 3          # max cases per request
-BATCH_MAX_CHARS        = 18000      # total chars per request (prompt + data)
-PER_ITEM_TEXT_CAP      = 5000       # max chars from PDF per case
-PDF_TIMEOUT            = 25
+metrics = ProcessingMetrics()
 
-# Retries
-RETRY_CYCLES           = 2
-RETRY_BACKOFF_BASE     = 1.6
-RETRY_BACKOFF_MAX      = 8.0
+# ====================== UTILITIES ======================
+async def atomic_write_json(path: Path, data: Any):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + '.tmp')
+    async with aiofiles.open(tmp, 'w', encoding='utf-8') as f:
+        await f.write(json.dumps(data, ensure_ascii=False, indent=2))
+    await aiofiles.os.rename(tmp, path)
 
-# Gemini 2.5 Flash Lite endpoint
-GEMINI_API_KEY ="AIzaSyCz41qZibYl1rca9Ye7_pkKaaBlQnms6ME"
-GEMINI_MODEL   = "gemini-2.5-flash-lite"
-
-GEMINI_BASE    = "https://generativelanguage.googleapis.com/v1beta"
-GEMINI_URL = f"{GEMINI_BASE}/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
-
-
-SAVE_FLUSH_EVERY = 10
-
-print("[CONFIG] BASE_DIR =", BASE_DIR)
-print("[CONFIG] PDF_BASE_PATH =", PDF_BASE_PATH)
-print("[CONFIG] CIVIL_OUTPUT =", CIVIL_OUTPUT)
-print("[CONFIG] CRIMINAL_OUTPUT =", CRIMINAL_OUTPUT)
-print("[CONFIG] PROGRESS_FILE =", PROGRESS_FILE)
-print("[CONFIG] MAX_CONCURRENCY, BATCH_MAX_ITEMS, BATCH_MAX_CHARS =", MAX_CONCURRENCY, BATCH_MAX_ITEMS, BATCH_MAX_CHARS)
-print("[CONFIG] PER_ITEM_PREVIEW_CAP =", PER_ITEM_TEXT_CAP)
-print("[CONFIG] GEMINI_URL =", GEMINI_URL)
-
-
-
-# ====================== HELPERS ======================
-def _atomic_write_json(path: str, data: Any):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = f"{path}.tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, path)
-
-def _safe_load_json(path: str, default: Any):
-    print(f"[SAFE_LOAD] Attempting to read: {path}")
-    if not os.path.exists(path) or os.path.getsize(path) == 0:
-        return default
+async def safe_load_json(path: Path, default: Any = None):
+    if not await aiofiles.os.path.exists(path):
+        return default or {}
+    
     try:
-        with open(path, "r", encoding="utf-8") as f:
-            content = f.read().strip()
-            if not content:
-                return default
-            return json.loads(content)
+        async with aiofiles.open(path, 'r', encoding='utf-8') as f:
+            content = await f.read()
+            return json.loads(content) if content.strip() else (default or {})
     except Exception:
-        print(f"[SAFE_LOAD] Failed to parse JSON; moved to {path}.bad")
-        # Move aside corrupted tracking/output to avoid blocking the run
-        try:
-            os.replace(path, path + ".bad")
-        except Exception:
-            pass
-        return default
-
-def load_progress() -> Dict[str, Any]:
-    d = _safe_load_json(PROGRESS_FILE, {})
-    print(f"[PROGRESS] Loaded progress entries: {len(d)}")
-    # optionally print first 5 entries
-    if isinstance(d, dict) and d:
-        sample = list(d.items())[:5]
-        print("[PROGRESS] sample entries:", sample)
-    return d if isinstance(d, dict) else {}
-
-    # return _safe_load_json(PROGRESS_FILE, {})
-
-def save_progress(d: Dict[str, Any]):
-    print(f"[PROGRESS] Saving progress ({len(d)} entries) -> {PROGRESS_FILE}")
-    _atomic_write_json(PROGRESS_FILE, d)
-
-def discover_input_jsons():
-    """
-    Streaming discovery generator:
-    - yields JSON file paths one by one
-    - skips known output/progress filenames
-    - prints progress every 1000 discovered files
-    NOTE: this *yields* strings, not returns a list.
-    """
-    print(f"[DISCOVER] Streaming scan of BASE_DIR: {BASE_DIR}")
-    count = 0
-    skipped_outputs = {
-        os.path.basename(CIVIL_OUTPUT),
-        os.path.basename(CRIMINAL_OUTPUT),
-        os.path.basename(PROGRESS_FILE),
-    }
-
-    for root, _, fs in os.walk(BASE_DIR):
-        for f in fs:
-            if not f.lower().endswith(".json"):
-                continue
-            base = os.path.basename(f)
-            # skip the output files if present in the same folder
-            if base in skipped_outputs:
-                # print only occasionally to avoid too much noise
-                if count % 1000 == 0:
-                    print(f"[DISCOVER] Skipping output/progress file encountered: {os.path.join(root,f)}")
-                continue
-            count += 1
-            if count % 1000 == 0:
-                print(f"[DISCOVER] Discovered {count} JSON files so far (in {root})")
-            yield os.path.join(root, f)
-
-    print(f"[DISCOVER] Finished scanning BASE_DIR. Total discovered (iterated): {count}")
-
+        return default or {}
 
 def clean_text(s: str) -> str:
-    # Remove problematic control chars and overlong runs of whitespace
+    if not s:
+        return ""
     s = s.encode("utf-8", "ignore").decode()
     s = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", " ", s)
     s = re.sub(r"[ \t]{2,}", " ", s)
     s = re.sub(r"\n{3,}", "\n\n", s)
     return s.strip()
 
-# ====================== PDF ======================
-def _extract_pdf_text_worker(pdf_abs: str) -> str:
-    if not pdf_abs or not os.path.exists(pdf_abs):
-        return ""
-    try:
-        out = []
-        with pdfplumber.open(pdf_abs) as pdf:
-            for page in pdf.pages:
-                try:
-                    t = page.extract_text() or ""
-                    if t:
-                        out.append(t)
-                except Exception:
-                    pass
-        return "\n\n".join(out)
-    except Exception:
-        return ""
-
-async def extract_pdf_text(meta: dict, cap_chars: int) -> str:
-    # meta may contain "pdf_link" or "pdf_path"
-    link = meta.get("pdf_link") or meta.get("pdf_path") or ""
-    print(f"[PDF] extract_preview_capped: case meta pdf_link={link!r}")
-    pdf_abs = ""
-    if link:
-        # if only filename in link, resolve from base; if path, take basename and resolve
-        pdf_abs = os.path.join(PDF_BASE_PATH, os.path.basename(link))
-    if not pdf_abs or not os.path.exists(pdf_abs):
-        print("[PDF] No pdf path found in metadata; returning 'Not available'")
-        return "Not available"
-
-    try:
-        txt = await asyncio.wait_for(
-            asyncio.to_thread(_extract_pdf_text_worker, pdf_abs),
-            timeout=PDF_TIMEOUT
-        )
-        if not txt:
-            return "Not available"
-        txt = clean_text(txt)
-        if len(txt) > cap_chars:
-            original_len = len(txt)
-            txt = txt[:cap_chars] + "\n[Truncated for length]"
-            print(f"[PDF] Extracted {original_len} chars from {pdf_abs} (returning {len(txt)} chars after truncation).")
-
-
-        return txt
-    except asyncio.TimeoutError:
-        print(f"[PDF] Extraction timeout for {pdf_abs} (timeout={PDF_TIMEOUT}s)")
-        return "[PDF extraction timeout]"
-    except Exception:
-        print(f"[PDF] Error extracting text from {pdf_abs}: {repr(Exception)}")
-        return "Not available"
-
-# ====================== PROMPTS ======================
-# IMPORTANT: Preserve your Civil/Criminal field structure exactly.
-CIVIL_SCHEMA = {
-    "case_type": "Civil",
-    "contract_validity": "...",
-    "property_rights": "...",
-    "civil_procedure": "...",
-    "court_direction": "...",
-    "judgment_result": "..."
-}
-CRIMINAL_SCHEMA = {
-    "case_type": "Criminal",
-    "criminal_liability_analysis": "...",
-    "evidence_evaluation": "...",
-    "sentencing_considerations": "...",
-    "procedural_compliance": "...",
-    "judgment_result": "..."
-}
-
-def build_batch_prompt(batch_items: List[Dict[str, Any]]) -> str:
-    header = f"""
-You are an expert Indian legal judgment analyzer.
-
-TASK:
-For each case, read the provided metadata and extracted judgment text,
-then produce a single JSON object with these top-level keys:
-"case_id", "instruction", "question", "facts", "charge", "law", "law_content", "judgment", "category", "case_type".
-
-### Rules for classification (VERY STRICT):
-
-- **case_type must be either "Civil" or "Criminal".**
-
-- Criminal = if the case involves:
-  * FIRs, police, accused persons, arrests
-  * IPC or CrPC sections (e.g., 498A, 420, 406, 302, 379, 506, etc.)
-  * Special criminal laws: NDPS Act, POCSO, COTPA
-  * Bail (regular/anticipatory), quash petitions, cognizance, criminal liability
-  * Words like "accused", "offence", "charge sheet"
-
-- Civil = if the case involves:
-  * Property disputes, title deeds, injunctions, succession, tenancy
-  * Contracts, specific performance, damages, family matters, company law
-  * Land acquisition, tribunals (motor accident compensation, electricity disputes)
-  * Constitutional writs under Article 226 (service matters, administrative disputes)
-  * Words like "injunction", "property", "contract", "compensation", "writ petition"
-
-- If both types of keywords appear:
-  * Prefer **Criminal** if ANY clear criminal statute or concept (FIR, IPC, CrPC, NDPS, bail, accused, quash petition) is present.
-  * Otherwise default to **Civil**.
-
-### Other field rules:
-
-- "case_id": copy exactly from input.
-- "instruction": always "Parse and summarize this judgment".
-- "question": a plain English question capturing the main legal issue.
-- "facts": concise 2–4 line background of the case.
-- "charge": the main legal issue or relief sought.
-- "law": main Act(s)/Code(s) applied.
-- "law_content": specific provision(s) explained in plain words (e.g., "Order XVIII Rule 17 CPC – Court may recall and examine a witness").
-- "judgment": crisp summary of the final decision.
-- "category": granular type (e.g., Civil: Property dispute, Civil: Contract dispute, Criminal: Bail, Criminal: Quash petition, etc.)
-
-STRICT OUTPUT RULES:
-- Output MUST be pure JSON: an array of JSON objects (one per case), no extra text.
-- Every object MUST have a correct "case_type" field.
-
-CASES_INPUT (array):
-""".strip()
-
-    return header + "\n" + json.dumps(batch_items, ensure_ascii=False, indent=2) + "\n\nReturn ONLY the JSON array."
-
-
-# ====================== INSTRUCTION & QUESTION BUILDING ======================
-DEFAULT_INSTRUCTION = "Summarize the facts, legal issue, provisions applied, and the High Court’s decision."
-
-def build_question(rec: dict) -> str:
-    charge = (rec.get("charge") or "").strip()
-    lawc = (rec.get("law_content") or "").strip()
-
-    if charge and lawc:
-        return f"What did the High Court decide regarding {charge} under {lawc}?"
-    if charge:
-        return f"What did the High Court decide regarding {charge}?"
-    if lawc:
-        return f"What was the High Court’s ruling under {lawc}?"
-    return "What was the High Court’s ruling in this case?"
-
-def attach_instruction_and_question(records: list) -> list:
-    out = []
-    for r in records:
-        enriched = dict(r)
-        enriched["instruction"] = DEFAULT_INSTRUCTION
-        enriched["question"] = build_question(enriched)
-        out.append(enriched)
-    return out
-
-
-# ====================== GEMINI CALL ======================
-async def call_gemini_json_array(session, prompt: str, batch_items: list):
-    url = GEMINI_URL
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"response_mime_type": "application/json"}
-    }
-
-    try:
-        async with session.post(url, json=payload, timeout=120) as resp:
-            text = await resp.text()
-
-            if resp.status != 200:
-                return None, f"HTTP {resp.status} | {text[:200]}"
-
-            try:
-                data = await resp.json(content_type=None)
-            except Exception as e:
-                return None, f"invalid_json_response: {e} | raw={text[:200]}"
-
-            try:
-                cand = (data.get("candidates") or [{}])[0]
-                parts = (cand.get("content") or {}).get("parts") or [{}]
-                raw_text = parts[0].get("text", "").strip()
-            except Exception as e:
-                return None, f"missing_fields: {e} | raw={text[:200]}"
-
-            print(f"[DEBUG] Raw Gemini output snippet: {raw_text[:200]}")
-
-            # --- Parse the model's raw JSON output ---
-            try:
-                parsed = json.loads(raw_text)
-            except Exception:
-                start = raw_text.find("{")
-                if start == -1:
-                    start = raw_text.find("[")
-                if start != -1:
-                    try:
-                        parsed = json.loads(raw_text[start:])
-                    except Exception:
-                        parsed = {"raw_text": raw_text}
-                else:
-                    parsed = {"raw_text": raw_text}
-
-            # Normalize into list of dicts
-            if isinstance(parsed, dict):
-                results = [parsed]
-            elif isinstance(parsed, list):
-                results = [item if isinstance(item, dict) else {"value": str(item)} for item in parsed]
-            else:
-                results = [{"value": str(parsed)}]
-
-            # Ensure each result has a case_id
-            for i, item in enumerate(results):
-                if "case_id" not in item and i < len(batch_items):
-                    item["case_id"] = batch_items[i].get("case_id")
-
-            # ✅ FIX: only accept results that follow the new schema
-            results = [r for r in results if ("facts" in r or "judgment" in r)]
-
-            # Add instruction & question enrichment
-            results = attach_instruction_and_question(results)
-
-            print(f"[DEBUG] Normalized output type: {type(results)} | Length: {len(results)}")
-            return results, None
-
-    except Exception as e:
-        return None, f"request_error: {e}"
-
-# ====================== DATA CLASSES ======================
-@dataclass
-class CaseItem:
-    case_id: str
-    meta: Dict[str, Any]
-    text: str
-
-# ====================== BATCHING ======================
-def pack_batches(items: List[CaseItem]) -> List[List[CaseItem]]:
-    """
-    Simple char-budget-aware packing:
-    - up to BATCH_MAX_ITEMS per batch
-    - total serialized chars <= BATCH_MAX_CHARS
-    """
-    batches: List[List[CaseItem]] = []
-    current: List[CaseItem] = []
-    current_len = 0
-
-    def item_len(ci: CaseItem) -> int:
-        # approximate serialized size inside batch json
-        stub = {
-            "case_id": ci.case_id,
-            "instruction": ci.meta.get("instruction", "Parse and summarize this judgment"),
-            "question": ci.meta.get("title", "Case Analysis"),
-            "metadata": ci.meta,
-            "text": ci.text,
-        }
-        return len(json.dumps(stub, ensure_ascii=False))
-
-    for ci in items:
-        ilen = item_len(ci)
-        if not current:
-            current = [ci]
-            current_len = ilen
-            continue
-        if len(current) < BATCH_MAX_ITEMS and (current_len + ilen) <= BATCH_MAX_CHARS:
-            current.append(ci)
-            current_len += ilen
-        else:
-            batches.append(current)
-            current = [ci]
-            current_len = ilen
-    if current:
-        batches.append(current)
-    return batches
-
-# ====================== PIPELINE ======================
-async def build_case_items(file_iter):
-    """
-    Async generator: given a synchronous iterable (generator) of file paths (file_iter),
-    yields CaseItem for each file after loading metadata and extracting capped PDF text.
-    This avoids building a full list in memory and starts producing items immediately.
-    Usage:
-        async for ci in build_case_items(discover_input_jsons()):
-            ...
-    """
-    idx = 0
-    for fp in file_iter:
-        idx += 1
-        case_id = os.path.basename(fp)
-        # load metadata (safe)
-        meta = _safe_load_json(fp, {})
-        # extract a capped preview of pdf text
-        txt = await extract_pdf_text(meta, PER_ITEM_TEXT_CAP)
-        # yield the CaseItem
-        yield CaseItem(case_id=case_id, meta=meta, text=txt)
-
-    # finished
-    print(f"[BUILD_ITEMS] Completed streaming case item generation (total yielded: {idx})")
-
-
-def case_items_to_payloads(batch: List[CaseItem]) -> List[Dict[str, Any]]:
-    payloads = []
-    for ci in batch:
-        instruction = ci.meta.get("instruction", "Parse and summarize this judgment")
-        question    = ci.meta.get("title", "Case Analysis")
-        payloads.append({
-            "case_id": ci.case_id,
-            "instruction": instruction,
-            "question": question,
-            "metadata": ci.meta,
-            "text": ci.text
-        })
-    return payloads
-
-async def process_batch(session: aiohttp.ClientSession, batch: List[CaseItem], queue: asyncio.Queue):
-    payloads = case_items_to_payloads(batch)
-    prompt = build_batch_prompt(payloads)
-
-    delay = 1.0
-    batch_ids = [ci.case_id for ci in batch]
-    print(f"[BATCH] Starting batch with {len(batch)} cases → {batch_ids}")
-
-    for attempt in range(RETRY_CYCLES + 1):
-        results, err = await call_gemini_json_array(session, prompt, batch)
-
-        if results is not None:
-            print(f"[BATCH] ✅ Batch success on attempt {attempt+1} → {batch_ids}")
-            by_id = {r.get("case_id"): r for r in results if isinstance(r, dict)}
-            for ci in batch:
-                res = by_id.get(ci.case_id)
-                if res and ("facts" in res or "judgment" in res):
-                    print(f"[CASE] ✅ Success → {ci.case_id}")
-                    await queue.put({"kind": "success", "case_id": ci.case_id, "data": res})
-                else:
-                    print(f"[CASE] ❌ Missing result → {ci.case_id}")
-                    await queue.put({"kind": "failure", "case_id": ci.case_id, "reason": "missing_case_result"})
+# ====================== STREAMING FILE PROCESSOR ======================
+class StreamingFileProcessor:
+    def __init__(self):
+        self.pdf_semaphore = asyncio.Semaphore(config.pdf_concurrency)
+        self.api_semaphore = asyncio.Semaphore(config.max_concurrency)
+        self.pdf_cache = {}
+        self.failed_pdfs = set()
+    
+    async def discover_files_stream(self) -> AsyncGenerator[Path, None]:
+        """Stream files one by one instead of loading all"""
+        skip_files = {config.civil_output.name, config.criminal_output.name, config.progress_file.name}
+        
+        if not config.base_dir.exists():
+            print(f"❌ Base directory does not exist: {config.base_dir}")
             return
-
-        # transient error → retry full batch
-        if attempt < RETRY_CYCLES and (err or "").lower() in {"timeout", "http 429", "network_error"}:
-            print(f"[BATCH] ⚠️ Attempt {attempt+1} failed ({err}). Retrying batch after {delay:.1f}s...")
-            await asyncio.sleep(min(delay, RETRY_BACKOFF_MAX))
-            delay *= RETRY_BACKOFF_BASE
-            continue
-
-        # 🚨 Final failure → fallback to per-case processing
-        print(f"[BATCH] ❌ Final failure after {attempt+1} attempts ({err}). Retrying cases individually...")
-
-        for ci in batch:
-            print(f"[FALLBACK] Retrying case individually → {ci.case_id}")
-            single_payload = case_items_to_payloads([ci])
-            single_prompt = build_batch_prompt(single_payload)
-            single_results, single_err = await call_gemini_json_array(session, single_prompt, [ci])
-
-            if single_results:
-                res = single_results[0]
-                if res and ("facts" in res or "judgment" in res):
-                    print(f"[CASE] ✅ Success (fallback) → {ci.case_id}")
-                    await queue.put({"kind": "success", "case_id": ci.case_id, "data": res})
+        
+        count = 0
+        for root, _, filenames in os.walk(config.base_dir):
+            for filename in filenames:
+                if (filename.lower().endswith('.json') and 
+                    filename not in skip_files):
+                    count += 1
+                    if count % 100 == 0:
+                        print(f"📁 Discovered {count} files...")
+                    yield Path(root) / filename
+        
+        metrics.total_discovered = count
+        print(f"✅ Total files discovered: {count}")
+    
+    def _extract_pdf_sync(self, pdf_path: str) -> str:
+        """Synchronous PDF extraction with size limits"""
+        if not pdf_path or not os.path.exists(pdf_path):
+            return ""
+        
+        try:
+            # Check file size first
+            file_size_mb = os.path.getsize(pdf_path) / (1024 * 1024)
+            if file_size_mb > 50:  # Skip very large files
+                print(f"⚠️ Skipping large PDF ({file_size_mb:.1f}MB): {os.path.basename(pdf_path)}")
+                return "Large file skipped"
+            
+            pages = []
+            with pdfplumber.open(pdf_path) as pdf:
+                # Limit pages to process
+                max_pages = min(len(pdf.pages), 20)  # Only first 20 pages
+                
+                for i, page in enumerate(pdf.pages[:max_pages]):
+                    try:
+                        text = page.extract_text()
+                        if text:
+                            pages.append(text)
+                        # Early break if we have enough content
+                        if len('\n'.join(pages)) > config.per_item_text_cap:
+                            break
+                    except Exception:
+                        continue
+            
+            return "\n\n".join(pages)
+        except Exception:
+            return ""
+    
+    async def extract_pdf_text(self, meta: dict, case_id: str) -> str:
+        """Extract PDF text with caching and error handling"""
+        pdf_link = meta.get("pdf_link") or meta.get("pdf_path", "")
+        if not pdf_link:
+            return "No PDF link"
+        
+        # Generate PDF path
+        if pdf_link.startswith("http"):
+            pdf_path = config.base_dir / Path(pdf_link).name
+        else:
+            pdf_path = config.base_dir / pdf_link if not Path(pdf_link).is_absolute() else Path(pdf_link)
+        
+        pdf_path_str = str(pdf_path)
+        
+        # Check cache and failed list
+        if pdf_path_str in self.pdf_cache:
+            return self.pdf_cache[pdf_path_str]
+        
+        if pdf_path_str in self.failed_pdfs:
+            return "Previously failed"
+        
+        if not pdf_path.exists():
+            self.failed_pdfs.add(pdf_path_str)
+            return "File not found"
+        
+        async with self.pdf_semaphore:
+            try:
+                text = await asyncio.wait_for(
+                    asyncio.to_thread(self._extract_pdf_sync, pdf_path_str),
+                    timeout=config.pdf_timeout
+                )
+                
+                if text and text.strip():
+                    text = clean_text(text)
+                    if len(text) > config.per_item_text_cap:
+                        text = text[:config.per_item_text_cap] + "\n[Truncated]"
+                    
+                    self.pdf_cache[pdf_path_str] = text
+                    metrics.pdf_extracted += 1
+                    return text
                 else:
-                    print(f"[CASE] ❌ Missing result (fallback) → {ci.case_id}")
-                    await queue.put({"kind": "failure", "case_id": ci.case_id, "reason": "missing_case_result"})
-            else:
-                print(f"[CASE] ❌ Failure (fallback) → {ci.case_id} | Reason: {single_err or err}")
-                await queue.put({"kind": "failure", "case_id": ci.case_id, "reason": single_err or err or "unknown_error"})
-        return
+                    self.failed_pdfs.add(pdf_path_str)
+                    metrics.pdf_failed += 1
+                    return "No text extracted"
+                    
+            except asyncio.TimeoutError:
+                self.failed_pdfs.add(pdf_path_str)
+                metrics.pdf_failed += 1
+                return "PDF timeout"
+            except Exception:
+                self.failed_pdfs.add(pdf_path_str)
+                metrics.pdf_failed += 1
+                return "Extraction error"
 
+# ====================== API PROCESSOR ======================
+class APIProcessor:
+    def __init__(self):
+        self.session = None
+        self.api_keys = config.api_keys
+        self.current_key_index = 0
+    
+    async def initialize(self):
+        self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
+    
+    async def close(self):
+        if self.session:
+            await self.session.close()
+    
+    def get_next_api_key(self):
+        key = self.api_keys[self.current_key_index]
+        self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
+        return key
+    
+    async def process_case(self, case_data: dict) -> Tuple[Optional[dict], Optional[str]]:
+        """Process a single case through the API"""
+        api_key = self.get_next_api_key()
+        model = config.model_variants[0]  # Use fastest model
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        
+        prompt = f"""Analyze this Indian legal case and return JSON with:
+"case_id", "instruction", "question", "facts", "charge", "law", "law_content", "judgment", "category", "case_type"
 
-async def result_writer(queue: asyncio.Queue):
-    civil_cases   = _safe_load_json(CIVIL_OUTPUT, [])
-    criminal_cases= _safe_load_json(CRIMINAL_OUTPUT, [])
-    progress      = load_progress()
-    since_flush   = 0
+Case Type Rules:
+- Criminal: FIR, IPC, CrPC, NDPS, POCSO, bail, accused
+- Civil: Property, contract, injunction, writ, compensation
 
-    while True:
-        msg = await queue.get()
-        if msg is None:
-            _atomic_write_json(CIVIL_OUTPUT, civil_cases)
-            _atomic_write_json(CRIMINAL_OUTPUT, criminal_cases)
-            save_progress(progress)
-            queue.task_done()
-            break
+Case Data:
+{json.dumps(case_data, ensure_ascii=False)}"""
+        
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"response_mime_type": "application/json"}
+        }
+        
+        try:
+            metrics.api_calls += 1
+            async with self.session.post(url, json=payload) as resp:
+                if resp.status != 200:
+                    metrics.api_errors += 1
+                    return None, f"HTTP {resp.status}"
+                
+                data = await resp.json(content_type=None)
+                text = data["candidates"][0]["content"]["parts"][0]["text"]
+                
+                try:
+                    result = json.loads(text)
+                    if isinstance(result, list) and result:
+                        result = result[0]
+                    
+                    # Ensure required fields
+                    result["case_id"] = case_data.get("case_id", "unknown")
+                    result.setdefault("instruction", "Parse this legal judgment")
+                    result.setdefault("question", "What was the court's decision?")
+                    
+                    return result, None
+                    
+                except json.JSONDecodeError:
+                    metrics.api_errors += 1
+                    return None, "Invalid JSON response"
+                
+        except Exception as e:
+            metrics.api_errors += 1
+            return None, f"API error: {str(e)[:100]}"
 
-        kind = msg.get("kind")
-        case_id = msg.get("case_id")
-        if kind == "success":
-            res = msg["data"]
-
-            # ✅ No more "answer" wrapper — use fields directly
-            ctype = (res.get("case_type") or "").strip().lower()
-            if ctype.startswith("crim"):
-                criminal_cases.append(res)
-            else:
-                civil_cases.append(res)
-
-            progress[case_id] = {
-                "status": "success",
-                "ts": datetime.now().isoformat(),
-                "reason": "Processed"
-            }
+# ====================== RESULT MANAGER ======================
+class StreamingResultManager:
+    def __init__(self):
+        self.civil_cases = []
+        self.criminal_cases = []
+        self.progress = {}
+        self.save_counter = 0
+    
+    async def initialize(self):
+        self.civil_cases = await safe_load_json(config.civil_output, [])
+        self.criminal_cases = await safe_load_json(config.criminal_output, [])
+        self.progress = await safe_load_json(config.progress_file, {})
+        print(f"📊 Loaded progress: {len(self.progress)} entries")
+    
+    async def add_result(self, case_id: str, result: dict, error: Optional[str]):
+        if error:
+            self.progress[case_id] = {"status": "failed", "error": error}
+            metrics.failed += 1
         else:
-            progress[case_id] = {
-                "status": "failed",
-                "reason": msg.get("reason", "unknown"),
-                "ts": datetime.now().isoformat()
-            }
+            case_type = result.get("case_type", "").lower()
+            if "criminal" in case_type or "crim" in case_type:
+                self.criminal_cases.append(result)
+            else:
+                self.civil_cases.append(result)
+            
+            self.progress[case_id] = {"status": "success"}
+            metrics.successful += 1
+        
+        metrics.total_processed += 1
+        self.save_counter += 1
+        
+        if self.save_counter >= config.save_every:
+            await self.save_all()
+            self.save_counter = 0
+    
+    async def save_all(self):
+        await asyncio.gather(
+            atomic_write_json(config.civil_output, self.civil_cases),
+            atomic_write_json(config.criminal_output, self.criminal_cases),
+            atomic_write_json(config.progress_file, self.progress)
+        )
+        print(f"💾 Saved: {len(self.civil_cases)} civil, {len(self.criminal_cases)} criminal cases")
 
-        since_flush += 1
-        if since_flush >= SAVE_FLUSH_EVERY:
-            _atomic_write_json(CIVIL_OUTPUT, civil_cases)
-            _atomic_write_json(CRIMINAL_OUTPUT, criminal_cases)
-            save_progress(progress)
-            since_flush = 0
-
-        queue.task_done()
-
-
-# ====================== MAIN ======================
-
-async def main_async():
-    """
-    Streaming main:
-    - iterates discover_input_jsons() generator
-    - skips already-successful cases using processed_cases.json (load_progress())
-    - builds batches on the fly using the same char-budget logic
-    - dispatches process_batch(session, batch, queue) tasks with a semaphore to limit concurrency
-    - writer task runs concurrently and flushes results periodically
-    """
-    print("[MAIN] Starting streaming main_async()")
-    file_iter = discover_input_jsons()  # generator now
-    # load progress to skip already-successful cases
-    progress = load_progress()  # returns dict
-    processed_count_before = sum(1 for v in progress.values() if v.get("status") == "success")
-    print(f"[MAIN] progress entries loaded={len(progress)}, already_success={processed_count_before}")
-
-    queue = asyncio.Queue()
-    writer_task = asyncio.create_task(result_writer(queue))
-
-    sem = asyncio.Semaphore(MAX_CONCURRENCY)
-    async with aiohttp.ClientSession() as session:
-        tasks = []                    # will hold created batch tasks
-        current_batch: List[CaseItem] = []
-        current_chars = 0
-        total_discovered = 0
-        total_queued = 0
-        skipped = 0
-
-        # helper local to estimate serialized size of an item (same logic as pack_batches)
-        def estimate_item_len(ci: CaseItem) -> int:
-            stub = {
-                "case_id": ci.case_id,
-                "instruction": ci.meta.get("instruction", "Parse and summarize this judgment"),
-                "question": ci.meta.get("title", "Case Analysis"),
-                "metadata": ci.meta,
-                "text": ci.text,
-            }
-            return len(json.dumps(stub, ensure_ascii=False))
-
-        # nested function to dispatch a batch with semaphore protection
-        async def dispatch_batch(batch_to_send: List[CaseItem]):
-            nonlocal total_queued
-            if not batch_to_send:
-                return
-            total_queued += len(batch_to_send)
-            print(f"[DISPATCH] Dispatching batch with {len(batch_to_send)} items. Total queued so far: {total_queued}")
-            async def run(b=batch_to_send):
-                async with sem:
-                    await process_batch(session, b, queue)
-            # schedule the batch worker immediately
-            tasks.append(asyncio.create_task(run()))
-
-        # STREAM files and form batches incrementally
-        for fp in file_iter:
-            total_discovered += 1
-            case_id = os.path.basename(fp)
-            # check progress: skip already-successful
-            p = progress.get(case_id)
-            if p and p.get("status") == "success":
-                skipped += 1
-                if skipped % 100 == 0:
-                    print(f"[MAIN] Skipped {skipped} already-successful cases so far.")
+# ====================== MAIN STREAMING PIPELINE ======================
+async def process_file_chunk(file_processor: StreamingFileProcessor, 
+                           api_processor: APIProcessor,
+                           result_manager: StreamingResultManager,
+                           files_chunk: List[Path],
+                           pbar: tqdm):
+    """Process a chunk of files"""
+    
+    # Process each file in the chunk
+    tasks = []
+    for file_path in files_chunk:
+        case_id = file_path.name
+        
+        # Skip if already processed
+        if case_id in result_manager.progress:
+            status = result_manager.progress[case_id].get("status")
+            if status == "success":
+                metrics.skipped += 1
+                pbar.update(1)
                 continue
+        
+        # Create processing task
+        task = asyncio.create_task(process_single_file(
+            file_processor, api_processor, result_manager, file_path, case_id
+        ))
+        tasks.append(task)
+    
+    # Wait for all tasks in chunk to complete
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
+        
+    # Update progress bar
+    pbar.update(len(files_chunk) - len(tasks))  # Update for skipped files
 
-            # load metadata and extract pdf text for this file
-            meta = _safe_load_json(fp, {})
-            text = await extract_pdf_text(meta, PER_ITEM_TEXT_CAP)
-            ci = CaseItem(case_id=case_id, meta=meta, text=text)
+async def process_single_file(file_processor: StreamingFileProcessor,
+                            api_processor: APIProcessor,
+                            result_manager: StreamingResultManager,
+                            file_path: Path,
+                            case_id: str):
+    """Process a single file completely"""
+    try:
+        # Load metadata
+        meta = await safe_load_json(file_path, {})
+        if not meta:
+            await result_manager.add_result(case_id, {}, "Empty metadata")
+            return
+        
+        # Extract PDF text
+        text = await file_processor.extract_pdf_text(meta, case_id)
+        
+        # Prepare case data
+        case_data = {
+            "case_id": case_id,
+            "metadata": meta,
+            "text": text
+        }
+        
+        # Process through API
+        result, error = await api_processor.process_case(case_data)
+        
+        # Save result
+        await result_manager.add_result(case_id, result or {}, error)
+        
+    except Exception as e:
+        await result_manager.add_result(case_id, {}, f"Processing error: {str(e)[:100]}")
 
-            # estimate length for budget
-            ilen = estimate_item_len(ci)
+async def print_progress():
+    """Print progress periodically"""
+    while True:
+        await asyncio.sleep(30)  # Every 30 seconds
+        elapsed = (datetime.now() - metrics.start_time).total_seconds()
+        rate = metrics.processing_rate()
+        
+        print(f"""
+📊 PROGRESS UPDATE:
+   Processed: {metrics.total_processed:,} | Success: {metrics.successful:,} | Failed: {metrics.failed:,}
+   Rate: {rate:.1f}/min | PDF: {metrics.pdf_extracted:,}✅/{metrics.pdf_failed:,}❌ | API: {metrics.api_calls:,}
+   Runtime: {elapsed/60:.1f}min | Memory: {psutil.virtual_memory().used/(1024**3):.1f}GB
+""")
 
-            # if can append to current batch, do so; else dispatch current batch and start a new one
-            can_append = (len(current_batch) < BATCH_MAX_ITEMS) and ((current_chars + ilen) <= BATCH_MAX_CHARS)
-            if can_append:
-                current_batch.append(ci)
-                current_chars += ilen
-            else:
-                # dispatch existing batch
-                await dispatch_batch(current_batch)
-                # start new batch with this item
-                current_batch = [ci]
-                current_chars = ilen
+async def main():
+    print("🚀 Legal Document Processor v3.0 (STREAMING)")
+    print("="*60)
+    
+    # Initialize components
+    file_processor = StreamingFileProcessor()
+    api_processor = APIProcessor()
+    result_manager = StreamingResultManager()
+    
+    await api_processor.initialize()
+    await result_manager.initialize()
+    
+    try:
+        # Start progress reporter
+        progress_task = asyncio.create_task(print_progress())
+        
+        # Stream process files
+        files_chunk = []
+        total_files = 0
+        
+        print("🔄 Starting streaming file processing...")
+        
+        # Create progress bar (we'll update the total as we go)
+        pbar = tqdm(desc="Processing", unit="files", dynamic_ncols=True)
+        
+        async for file_path in file_processor.discover_files_stream():
+            files_chunk.append(file_path)
+            total_files += 1
+            
+            # Process chunk when it's full
+            if len(files_chunk) >= config.file_chunk_size:
+                metrics.current_chunk += 1
+                print(f"📦 Processing chunk {metrics.current_chunk} ({len(files_chunk)} files)")
+                
+                await process_file_chunk(file_processor, api_processor, result_manager, files_chunk, pbar)
+                files_chunk = []
+                
+                # Brief pause between chunks
+                await asyncio.sleep(1)
+        
+        # Process remaining files
+        if files_chunk:
+            metrics.current_chunk += 1
+            print(f"📦 Processing final chunk ({len(files_chunk)} files)")
+            await process_file_chunk(file_processor, api_processor, result_manager, files_chunk, pbar)
+        
+        # Update progress bar total
+        pbar.total = total_files
+        pbar.refresh()
+        
+        # Final save
+        await result_manager.save_all()
+        pbar.close()
+        progress_task.cancel()
+        
+        # Final stats
+        elapsed = (datetime.now() - metrics.start_time).total_seconds()
+        print(f"""
+✅ PROCESSING COMPLETE!
+📊 Total Files: {metrics.total_discovered:,}
+✅ Successful: {metrics.successful:,} ({metrics.success_rate():.1%})
+❌ Failed: {metrics.failed:,}
+⏭️ Skipped: {metrics.skipped:,}
+📄 PDFs: {metrics.pdf_extracted:,}✅/{metrics.pdf_failed:,}❌
+🔗 API Calls: {metrics.api_calls:,}
+⏱️ Runtime: {elapsed/60:.1f} minutes
+📈 Rate: {metrics.processing_rate():.1f} files/minute
 
-            # periodic small-status print
-            if total_discovered % 500 == 0:
-                print(f"[MAIN] Discovered {total_discovered} files (queued {total_queued}, skipped {skipped})")
-
-        # after iteration, dispatch leftover batch
-        if current_batch:
-            await dispatch_batch(current_batch)
-
-        # wait for all batch tasks to complete
-        if tasks:
-            print(f"[MAIN] Waiting for {len(tasks)} batch tasks to finish...")
-            await asyncio.gather(*tasks)
-        else:
-            print("[MAIN] No batches were dispatched (no unprocessed cases found).")
-
-    # tell writer to flush and exit
-    await queue.put(None)
-    await writer_task
-
-    # final summary
-    progress_after = load_progress()
-    total_success_after = sum(1 for v in progress_after.values() if v.get("status") == "success")
-    print(f"[MAIN] Streaming processing finished. Discovered={total_discovered}, skipped={skipped}, queued={total_queued}")
-    print(f"[MAIN] Success before run={processed_count_before}, success after run={total_success_after}")
-    print("[MAIN] All done.")
-
-
-def main():
-    if not GEMINI_API_KEY:
-        raise RuntimeError("Set your GEMINI_API_KEY first (export as env var GEMINI_API_KEY)")
-    print("[MAIN] Using Gemini endpoint:", GEMINI_URL)  # helpful debug
-    asyncio.run(main_async())
-
+📊 Final Results:
+   Civil Cases: {len(result_manager.civil_cases):,}
+   Criminal Cases: {len(result_manager.criminal_cases):,}
+""")
+        
+    finally:
+        await api_processor.close()
 
 if __name__ == "__main__":
-    import traceback, sys, time
-    start_time = time.time()
     try:
-        main()
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n⚠️ Processing interrupted by user")
     except Exception as e:
-        print("[FATAL] Unhandled exception in main():", repr(e))
+        print(f"\n❌ Fatal error: {e}")
+        import traceback
         traceback.print_exc()
-        sys.exit(1)
-    finally:
-        print(f"[INFO] Script finished (elapsed {time.time() - start_time:.1f}s)")
